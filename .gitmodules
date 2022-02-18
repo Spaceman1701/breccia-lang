@@ -1,0 +1,3 @@
+[submodule "external/re2c"]
+	path = external/re2c
+	url = git@github.com:skvadrik/re2c.git
