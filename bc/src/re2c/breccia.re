@@ -55,10 +55,10 @@ void lex(LexerState *s) {
 
 }
 
-int main() {
-    const char* in = "type Ʉ\n";
-    printf("%s", in);
-    LexerState s;
-    s.cur = in;
-    lex(&s);
-}
+// int main() {
+//     const char* in = "type Ʉ\n";
+//     printf("%s", in);
+//     LexerState s;
+//     s.cur = in;
+//     lex(&s);
+// }
