@@ -1,0 +1,1 @@
+export PATH="`realpath external/bin`:$PATH"
