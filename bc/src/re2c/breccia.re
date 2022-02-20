@@ -1,28 +1,13 @@
+#include "lexer.h"
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stddef.h>
-typedef enum {
-    BR_ERR_UNKNOWN,
-    BR_KW_TYPE,
-    BR_KW_INTERFACE,
-    BR_KW_STRUCT,
-} Bc_TokenType;
 
 
-typedef struct {
-    uint32_t line;
-    uint32_t column;
-    uint32_t position;
-} Bc_Token;
+#define TOKEN(tk) handle_token(s, tk, tk_start, YYCURSOR); continue;
 
-
-typedef struct {
-    const char* cur;
-
-} LexerState;
-
-
-void print_token(const char* tk_start, const char* tk_end) {
+void handle_token(LexerState *s, Bc_TokenType tk, const char* tk_start, const char* tk_end) {
     ptrdiff_t len = tk_end - tk_start;
     printf("(%.*s)\n", (int)len, tk_start); //this will break if a token is more than 2^31 bytes. That's pretty unlikely
 }
@@ -38,15 +23,40 @@ void lex(LexerState *s) {
         re2c:yyfill:enable = 0;
         re2c:define:YYCTYPE = 'unsigned char';
         
-        kw_type = "type";
-        kw_type {printf("tk_type "); print_token(tk_start, YYCURSOR); continue;}
+        "type"          {TOKEN(BC_KW_TYPE)}
+        "interface"     {TOKEN(BC_KW_INTERFACE)}
+        "struct"        {TOKEN(BC_KW_STRUCT)}
+        "impl"          {TOKEN(BC_KW_IMPL)}
+        "for"           {TOKEN(BC_KW_FOR)}
+        "func"          {TOKEN(BC_KW_FUNC)}
+        "alias"         {TOKEN(BC_KW_ALIAS)}
+        "let"           {TOKEN(BC_KW_LET)}
+        "if"            {TOKEN(BC_KW_IF)}
+        "return"        {TOKEN(BC_KW_RETURN)}
+        "mut"           {TOKEN(BC_KW_MUT)}
 
-        name = [a-z]+;
-        name {printf("tk_name "); print_token(tk_start, YYCURSOR);continue;}
+        "="             {TOKEN(BC_OP_ASSIGN)}
+        "*"             {TOKEN(BC_OP_STAR)}
+        "."             {TOKEN(BC_OP_DOT)}
+        "::"            {TOKEN(BC_OP_SCOPE)}
 
-        [ ]+ {continue;}
-        [\u0244] {printf("tk_name "); print_token(tk_start, YYCURSOR);continue;}
-        
+        ","             {TOKEN(BC_COMMA)}
+        "\""            {TOKEN(BC_QUOTE)}
+
+        "{"             {TOKEN(BC_LCURLY)}
+        "}"             {TOKEN(BC_RCURLY)}
+
+        "("             {TOKEN(BC_LPAREN)}
+        ")"             {TOKEN(BC_RPAREN)}
+
+        ";"             {TOKEN(BC_SEMI)}
+
+        name = [a-zA-Z][a-zA-Z0-9_]*;
+        name {TOKEN(BC_NAME)}
+
+        "//"            {continue;}
+
+        [ \t\r\n]+ {continue;}        
         *       { printf("tk_unknown\n"); }
         $       {printf("done\n"); return;}
 
