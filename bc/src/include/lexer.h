@@ -1,5 +1,8 @@
 #include <stdint.h>
 #include <stddef.h>
+#include <stdio.h>
+
+#include "utils/list.h"
 
 //this file is implemented by src/re2c/BCeccia.re
 
@@ -46,15 +49,29 @@ typedef enum {
 
 
 typedef struct {
-    uint32_t line;
-    uint32_t column;
-    uint32_t position;
+    size_t line;
+    size_t column;
+    size_t position;
+
+    const char* text_ptr;
+    size_t length;
+
+    Bc_TokenType type;
 } Bc_Token;
 
-
 typedef struct {
-    const char* cur;
-
+    const char* input_string;
+    
+    Bc_List token_list;
+    
 } LexerState;
+
+int init_lexer(LexerState* lexer, const char* input_string);
+
+int bc_lexer_append_token(LexerState* lexer, Bc_Token token);
+
+void bc_lexer_print_all_tokens(LexerState* lexer);
+
+void bc_token_print(Bc_Token *tk, FILE* stream);
 
 void lex(LexerState *s);

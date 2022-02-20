@@ -11,9 +11,11 @@ int main(int argc, const char** argv) {
 
     FileBuffer input_file;
     bc_files_read_file(argv[1], &input_file);
-    printf("%s\n", input_file.data);
 
     LexerState s;
-    s.cur = input_file.data;
+    init_lexer(&s, input_file.data);
+
     lex(&s);
+
+    bc_lexer_print_all_tokens(&s);
 }

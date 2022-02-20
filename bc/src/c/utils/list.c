@@ -55,14 +55,16 @@ Bc_ListElement* bc_list_append_ptr(Bc_List *list) {
         }
     }
 
-    return list->data + (list->length * list->element_size);
+    Bc_ListElement* append_ptr = list->data + (list->length * list->element_size);
+    list->length++;
+    return append_ptr;
 }
 
 Bc_ListElement* bc_list_get(Bc_List *list, size_t index) {
     if (index >= list->length) {
         return NULL;
     }
-    return list->data + (list->length * list->element_size);
+    return list->data + (index * list->element_size);
 }
 
 int bc_shrink_to_fit(Bc_List *list) {

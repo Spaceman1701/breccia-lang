@@ -8,12 +8,26 @@
 #define TOKEN(tk) handle_token(s, tk, tk_start, YYCURSOR); continue;
 
 void handle_token(LexerState *s, Bc_TokenType tk, const char* tk_start, const char* tk_end) {
-    ptrdiff_t len = tk_end - tk_start;
-    printf("(%.*s)\n", (int)len, tk_start); //this will break if a token is more than 2^31 bytes. That's pretty unlikely
+    size_t len = tk_end - tk_start;    
+    size_t start_index = tk_start - s->input_string;
+
+    Bc_Token token = {
+        .line = 0,
+        .column = 0,
+        .position = start_index,
+        .length = len,
+        .text_ptr = tk_start,
+        .type = tk,
+    };
+
+    int err = bc_lexer_append_token(s, token);
+    if (err) {
+        fprintf(stderr, "error: failed to add token at position %zu\n", start_index);
+    }
 }
 
 void lex(LexerState *s) {
-    const char *YYCURSOR = s->cur;
+    const char *YYCURSOR = s->input_string;
     const char *YYMARKER = NULL;
     const char *YYLIMIT = NULL;
     for (;;) {
@@ -64,11 +78,3 @@ void lex(LexerState *s) {
     }
 
 }
-
-// int main() {
-//     const char* in = "type Ʉ\n";
-//     printf("%s", in);
-//     LexerState s;
-//     s.cur = in;
-//     lex(&s);
-// }
