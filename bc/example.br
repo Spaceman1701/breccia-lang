@@ -1,32 +1,32 @@
 type String struct {
-	data *u8;
-	length u32;
+  data *u8;
+  length u32;
 }
 
 type Named interface {
-	func GetName() String;
+  func GetName() String;
 }
 
 type Foobar struct {
-	name *String;
-	otherThing u64;
+  name *String;
+  otherThing u64;
 }
 
 impl Foobar {
-	func (self *Foobar) GetName() String {
-		return *self.name;
-	}
+  func (self *Foobar) GetName() String {
+    return *self.name;
+  }
 
-	func (self *mut Foobar) SetOtherThing(v u64) {
-		self.otherThing = v;
-	}
+  func (self *mut Foobar) SetOtherThing(v u64) {
+    self.otherThing = v;
+  }
 }
 
 impl Named for Foobar {
-	func alias GetName() = Foobar::GetName; //optional when signatures are compatible
+  func alias GetName() = Foobar::GetName; //optional when signatures are compatible
 }
 
 
 func main() {
-	return 0;
+  return 0;
 }

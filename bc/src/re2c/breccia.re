@@ -4,16 +4,20 @@
 #include <stdio.h>
 #include <stddef.h>
 
+const size_t CODE_LOCATION_START_INDEX = 0;
 
-#define TOKEN(tk) handle_token(s, tk, tk_start, YYCURSOR); continue;
 
-void handle_token(LexerState *s, Bc_TokenType tk, const char* tk_start, const char* tk_end) {
+#define TOKEN(tk) handle_token(s, tk, tk_start, YYCURSOR, cur_line, line_start_ptr); continue;
+
+void handle_token(LexerState *s, Bc_TokenType tk, const char* tk_start, const char* tk_end, size_t line_num, const char* line_start_ptr) {
     size_t len = tk_end - tk_start;    
     size_t start_index = tk_start - s->input_string;
 
+    size_t column = (tk_start - line_start_ptr) + CODE_LOCATION_START_INDEX;
+
     Bc_Token token = {
-        .line = 0,
-        .column = 0,
+        .line = line_num,
+        .column = column,
         .position = start_index,
         .length = len,
         .text_ptr = tk_start,
@@ -30,6 +34,8 @@ void lex(LexerState *s) {
     const char *YYCURSOR = s->input_string;
     const char *YYMARKER = NULL;
     const char *YYLIMIT = NULL;
+    size_t cur_line = CODE_LOCATION_START_INDEX;
+    const char* line_start_ptr = YYCURSOR;
     for (;;) {
         const char *tk_start = YYCURSOR;
     /*!re2c
@@ -65,14 +71,14 @@ void lex(LexerState *s) {
 
         ";"             {TOKEN(BC_SEMI)}
 
-        name = [a-zA-Z][a-zA-Z0-9_]*;
-        name {TOKEN(BC_NAME)}
+        name =          [a-zA-Z][a-zA-Z0-9_]*;
+        name            {TOKEN(BC_NAME)}
 
         "//"            {continue;}
-
-        [ \t\r\n]+ {continue;}        
-        *       { printf("tk_unknown\n"); }
-        $       {printf("done\n"); return;}
+        [\n]            {cur_line++; line_start_ptr=YYCURSOR; continue;}
+        [ \t\r]+        {continue;}        
+        *               { printf("tk_unknown\n"); }
+        $               {printf("done\n"); return;}
 
     */
     }

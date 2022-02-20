@@ -74,4 +74,6 @@ void bc_lexer_print_all_tokens(LexerState* lexer);
 
 void bc_token_print(Bc_Token *tk, FILE* stream);
 
+void bc_token_print_location(Bc_Token *tk, FILE* stream);
+
 void lex(LexerState *s);
