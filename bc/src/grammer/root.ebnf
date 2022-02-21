@@ -1,0 +1,91 @@
+Module = Decl* EOF;
+
+Name = [A-Za-z][A-Za-z0-9_]*;
+
+Ident
+    = Name
+    | ident '.' Name
+    ;
+
+TypeAnnotation
+    = Ident
+    | '*' 'mut'? typeannotation
+    ;
+
+Decl 
+    = structDecl
+    | InterfaceDecl
+    | ImplDecl
+    | FuncDecl
+    ;
+
+StructDecl = 'type' Name 'struct' '{' StructField* '}';
+
+StructField = Name typeannotation ';';
+
+InterfaceDecl = 'type' Name 'interface' '{' (funcsig ';')* '}';
+
+ImplDecl 
+    = 'impl' Name '{' FuncDecl* '}'
+    | 'impl' Ident 'for' Name '{' FuncDecl* '}'
+    ;
+
+FuncDecl 
+    = FuncSig '{' Block '}'
+    | 'alias' FuncSig '=' Ident
+    ;
+
+FuncSig = 'fn' Name FuncParams typeannotation?;
+
+FuncParams = '(' (VarDecl (',' VarDecl)*) ')';
+
+VarDecl
+    = Name TypeAnnotation
+    ;
+
+
+Block = Stmt*;
+
+Stmt
+    = ReturnStmt
+    | ExprStmt
+    | AssignmentStmt
+    | IfStatement
+    ;
+
+ReturnStmt = 'return' Stmt;
+
+ExprStmt = Expr ';';
+
+AssignmentStmt = Assignable '=' Expr ';';
+
+IfStatement 
+    = 'if' Expr '{' Block '}' ('elif' Expr '{' Block '}')* ('else' '{' Block '}')?;
+
+Assignable
+    = Ident
+    | Expr '.' Name
+    | 'let' VarDecl
+    ;
+
+Expr 
+    = Atom
+    | UnaryExpr
+    | BinaryOpExpr
+    | MemberAccessExpr
+    | FunctionCallExpr
+    ;
+
+UnaryExpr = UnaryOp Expr;
+
+BinaryOpExpr = Expr BinaryOp Expr;
+
+MemberAccessExpr = Expr '.' Ident;
+
+FunctionCallExpr = Expr '(' (Expr (',' Expr)*)? ')';
+
+Atom
+    = Integer
+    | Real
+    | Ident
+    ;
