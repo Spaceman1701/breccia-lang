@@ -6,10 +6,10 @@ typedef void Bc_ListElement;
 
 // list of generic elements
 typedef struct {
-  Bc_ListElement *data;
-  size_t length;
-  size_t capacity;
-  size_t element_size;
+    Bc_ListElement *data;
+    size_t length;
+    size_t capacity;
+    size_t element_size;
 } Bc_List;
 
 int bc_list_new(size_t element_size, size_t inital_capactiy, Bc_List *list);

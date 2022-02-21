@@ -74,6 +74,9 @@ Expr
     | BinaryOpExpr
     | MemberAccessExpr
     | FunctionCallExpr
+    | Integer
+    | Real
+    | Ident
     ;
 
 UnaryExpr = UnaryOp Expr;
@@ -83,9 +86,3 @@ BinaryOpExpr = Expr BinaryOp Expr;
 MemberAccessExpr = Expr '.' Ident;
 
 FunctionCallExpr = Expr '(' (Expr (',' Expr)*)? ')';
-
-Atom
-    = Integer
-    | Real
-    | Ident
-    ;

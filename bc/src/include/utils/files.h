@@ -4,9 +4,9 @@
 // Breccia just reads the entire file into memory, so this is a very simple
 // struct
 typedef struct {
-  char *path;
-  char *data;
-  size_t length;
+    char *path;
+    char *data;
+    size_t length;
 } FileBuffer;
 
 int bc_files_read_file(const char *filepath, FileBuffer *out);
