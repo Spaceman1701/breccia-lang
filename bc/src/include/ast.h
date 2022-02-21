@@ -42,6 +42,10 @@ FORWARD_DECLARE(Bc_MemberAccessExpr);
 FORWARD_DECLARE(Bc_FuncCallExpr);
 FORWARD_DECLARE(Bc_ExprList)
 
+typedef enum { Expr, End } Bc_CachableAstNodeKinds;
+
+const size_t Bc_AST_NON_TERMINAL_COUNT = End;
+
 enum Bc_DeclKind {
     Bc_DeclStructKind,
     Bc_DeclInterfaceKind,

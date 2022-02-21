@@ -76,3 +76,14 @@ void bc_token_print(Bc_Token *tk, FILE *stream);
 void bc_token_print_location(Bc_Token *tk, FILE *stream);
 
 void lex(LexerState *s);
+
+typedef struct {
+    LexerState lexer;
+    size_t cursor;
+} TokenScanner;
+
+Bc_Token *bc_tscanner_peek(const TokenScanner *ts);
+Bc_Token *bc_tscanner_next(TokenScanner *ts);
+
+size_t bc_tscanner_mark(const TokenScanner *ts);
+void bc_tscanner_reset(TokenScanner *ts, size_t pos);
