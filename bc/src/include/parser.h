@@ -1,24 +1,34 @@
+#pragma once
+
 #include <stdlib.h>
 
 #include "ast.h"
 #include "lexer.h"
+#include "utils/hash_map.h"
 
 typedef struct {
     void *value;
-    bool set;
     size_t end_pos;
-} Rc_CacheEntry;
+} Bc_CacheEntry;
 
 typedef struct {
-    Rc_CacheEntry type_map[Bc_AST_NON_TERMINAL_COUNT];
-} Rc_PositionCache;
+    Bc_HashMap *map;
+} Bc_PositionCache;
 
 typedef struct {
-    Rc_PositionCache *entries;
-} MemoizationCache;
+    Bc_PositionCache *entries;
+    size_t length;
+} Bc_MemoizationCache;
+
+void bc_memo_cache_init(Bc_MemoizationCache *cache, size_t length);
+
+void bc_position_cache_init(Bc_PositionCache *cache);
+
+Bc_CacheEntry *bc_memo_cache_get_value(Bc_MemoizationCache *cache, size_t index,
+                                       size_t func_id);
 
 typedef struct {
-    MemoizationCache cache;
+    Bc_MemoizationCache cache;
     TokenScanner *ts;
 } Bc_Parser;
 
@@ -28,60 +38,11 @@ Bc_Decl *bc_expect_decl(TokenScanner *ts);
 Bc_Expr *bc_expect_expr(TokenScanner *ts);
 Bc_Stmt *bc_expect_stmt(Bc_Parser *p);
 
-#define CHECK_CACHE(TYPE, parser)                                              \
-    do {                                                                       \
-        TYPE *cached_result =                                                  \
-            (TYPE *)parser->cache.entries[parser->ts->cursor].type_map[1];     \
-        if (cached_result) {                                                   \
-            return cached_result;                                              \
-        }                                                                      \
-    } while (0)
-
-Bc_Stmt *bc_expect_stmt(Bc_Parser *p) {
-    // CHECK_CACHE(Bc_Stmt, p);
-
-    return NULL;
-}
-
 typedef void *(expect_func)(Bc_Parser *p);
 
-void *handle_cache(expect_func func, Bc_Parser *p,
-                   Bc_CachableAstNodeKinds kind) {
-    Rc_CacheEntry cached_value = p->cache.entries[p->ts->cursor].type_map[kind];
-    if (cached_value.set) {
-        bc_tscanner_reset(p->ts, cached_value.end_pos);
-        return cached_value.value;
-    }
-    return NULL;
-}
+void *handle_cache(expect_func func, Bc_Parser *p, size_t func_id);
 
-void store_in_cache(Bc_Parser *p, size_t location, Bc_CachableAstNodeKinds kind,
-                    void *value) {}
+void store_in_cache(Bc_MemoizationCache *cache, size_t location, size_t func_id,
+                    void *value);
 
-void *handle_left_recursion(expect_func func, Bc_Parser *p,
-                            Bc_CachableAstNodeKinds kind) {
-    size_t pos = bc_tscanner_mark(p->ts);
-    Rc_CacheEntry cached_value = p->cache.entries[pos].type_map[kind];
-    if (cached_value.set) {
-        bc_tscanner_reset(p->ts, cached_value.end_pos);
-        return cached_value.value;
-    }
-
-    store_in_cache(p, pos, kind, NULL); // skip left recursive alternatives
-    size_t last_pos = pos;
-    void *last_result = NULL;
-    for (;;) {
-        void *result = func(p);
-        size_t new_pos = bc_tscanner_mark(p->ts);
-
-        if (new_pos <= last_pos) { // failed to advance
-            break;
-        }
-        store_in_cache(p, last_pos, kind, result);
-        last_pos = new_pos;
-        last_result = result;
-    }
-
-    bc_tscanner_reset(p->ts, last_pos);
-    return last_result;
-}
+void *handle_left_recursion(expect_func func, Bc_Parser *p, size_t func_id);

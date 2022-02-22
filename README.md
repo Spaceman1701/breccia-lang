@@ -46,6 +46,42 @@ against interfaces require pointer 2 deferences.
 
 Breccia Interfaces even work in C programs! 
 
+### Is this better than C++ inherentence
+
+Yes. 
+
+In C++ (for most implementations), ineheriting from a class requires a "parent" pointer for _each instance_ of the child class. If you made a small
+class like:
+
+```c++
+class Vec2 {
+    public:
+    float x;
+    float y;
+}
+```
+
+most 64-bit implementations would require 8 bytes of storage for a `Vec2`. This makes sense since `float` is a 4 byte type.
+
+However, `Vec2` extended a parent class:
+
+```c++
+class Vec2: SomeUsefulParent {
+    public:
+    float x;
+    float y;
+}
+```
+Now, if you look at the result of `sizeof(Vec2)`, you might be suprised to find it now needs 16 bytes. That's twice the memory! If you were so bold to extend two parent classes, you'll find that `Vec2` now requires 24 bytes.
+
+If you were representing a shape made from 1000 `Vec2`s, you would be wasting about 8 kilobytes of memory just by extending one class. 
+
+This means that performance and/or memory sensitive code usually has to avoid inheritence altogether. 
+
+In Breccia, `Vec2` can implement any number of interfaces without changing the in-memory representation of the struct. This means that there are no negative externalities of polymorphism! This makes it much safer to use in code where performance matters. 
+
+Breccia interfaces only use memory when you actively have a reference to them.
+
 ## Performant
 
 Breccia doesn't do anything for you. No resources will be used unless your code

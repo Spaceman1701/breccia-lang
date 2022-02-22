@@ -5,8 +5,7 @@
 #include <stdlib.h>
 
 Bc_HashMap *bc_hm_new(bc_hm_hash_func hash_function,
-                      bc_hm_keys_equal_func equality_function,
-                      size_t element_size) {
+                      bc_hm_keys_equal_func equality_function) {
     Bc_HashMap *map = malloc(sizeof(Bc_HashMap));
     map->size = 0;
     map->equality_func = equality_function;

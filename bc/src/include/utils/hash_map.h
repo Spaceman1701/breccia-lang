@@ -30,8 +30,7 @@ typedef struct {
 } Bc_HashMap;
 
 Bc_HashMap *bc_hm_new(bc_hm_hash_func hash_function,
-                      bc_hm_keys_equal_func equality_function,
-                      size_t element_size);
+                      bc_hm_keys_equal_func equality_function);
 
 Bc_HashMapEntry *bc_hash_map_put_ptr(Bc_HashMap *map, bc_hm_key key);
 Bc_HashMapEntry *bc_hash_map_get(Bc_HashMap *map, bc_hm_key key);

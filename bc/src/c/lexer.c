@@ -39,3 +39,17 @@ void bc_token_print_location(Bc_Token *tk, FILE *stream) {
     fprintf(stream, "{line: %zu, column: %zu} (%zu)", tk->line, tk->column,
             tk->position);
 }
+
+Bc_Token *bc_tscanner_peek(const TokenScanner *ts) {
+    return bc_list_get(&ts->lexer.token_list, ts->cursor);
+}
+
+Bc_Token *bc_tscanner_next(TokenScanner *ts) {
+    Bc_Token *tk = bc_tscanner_peek(ts);
+    ts->cursor++;
+    return tk;
+}
+
+size_t bc_tscanner_mark(const TokenScanner *ts) { return ts->cursor; }
+
+void bc_tscanner_reset(TokenScanner *ts, size_t pos) { ts->cursor = pos; }
