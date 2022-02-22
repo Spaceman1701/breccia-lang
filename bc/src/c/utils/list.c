@@ -62,7 +62,7 @@ Bc_ListElement *bc_list_append_ptr(Bc_List *list) {
     return append_ptr;
 }
 
-Bc_ListElement *bc_list_get(Bc_List *list, size_t index) {
+Bc_ListElement *bc_list_get(const Bc_List *list, size_t index) {
     if (index >= list->length) {
         return NULL;
     }

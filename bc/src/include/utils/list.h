@@ -20,6 +20,6 @@ int bc_list_expand_capacity(Bc_List *list, size_t new_capacity);
 
 Bc_ListElement *bc_list_append_ptr(Bc_List *list);
 
-Bc_ListElement *bc_list_get(Bc_List *list, size_t index);
+Bc_ListElement *bc_list_get(const Bc_List *list, size_t index);
 
 int bc_shrink_to_fit(Bc_List *list);
