@@ -4,6 +4,7 @@
 #include "lexer.h"
 
 #include "ast.h"
+#include "parser.h"
 
 int main(int argc, const char **argv) {
     if (argc < 2) {
@@ -18,6 +19,20 @@ int main(int argc, const char **argv) {
     init_lexer(&s, input_file.data);
 
     lex(&s);
+
+    TokenScanner ts;
+    ts.lexer = s;
+    ts.cursor = 0;
+
+    Bc_Parser parser;
+    parser.ts = &ts;
+    bc_memo_cache_init(&parser.cache, ts.lexer.token_list.length);
+
+    Bc_Expr *expr = bc_expect_expr(&parser);
+
+    if (expr) {
+        printf("found an expr!\n");
+    }
 
     bc_lexer_print_all_tokens(&s);
 }

@@ -27,7 +27,7 @@ void bc_memo_cache_init(Bc_MemoizationCache *cache, size_t length);
 void bc_position_cache_init(Bc_PositionCache *cache);
 
 Bc_CacheEntry *bc_memo_cache_get_value(Bc_MemoizationCache *cache, size_t index,
-                                       FuncId *func_id);
+                                       const FuncId *func_id);
 
 void store_in_cache(Bc_MemoizationCache *cache, size_t location,
-                    FuncId *func_id, void *value);
+                    const FuncId *func_id, void *value);

@@ -8,8 +8,8 @@
 
 #define BC_HASH_MAP_BUCKET_COUNT 512
 
-typedef void *bc_hm_key;
-typedef void *bc_hm_value;
+typedef const void *bc_hm_key;
+typedef const void *bc_hm_value;
 
 typedef bool (*bc_hm_keys_equal_func)(bc_hm_key a, bc_hm_key b);
 typedef size_t (*bc_hm_hash_func)(bc_hm_key key);

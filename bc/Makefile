@@ -30,7 +30,7 @@ $(info $(OBJECTS))
 
 RE2C_FLAGS = -W -Werror -i --utf8 --case-ranges
 
-CFLAGS = -c -I$(GENERATED_INCLUDES_DIR) -I$(INCLUDE_DIR) -Werror -Wall
+CFLAGS = -c -I$(GENERATED_INCLUDES_DIR) -I$(INCLUDE_DIR) -Wall -Werror=incompatible-pointer-types
 LDFLAGS = -g -O3
 
 $(info $(OBJECTS))

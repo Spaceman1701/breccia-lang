@@ -77,6 +77,9 @@ void lex(LexerState *s) {
             name =          [a-zA-Z][a-zA-Z0-9_]*;
             name            {TOKEN(BC_NAME)}
 
+            integer =       [0-9]+;
+            integer         {TOKEN(BC_INTEGER)}
+
             "//"            {continue;}
             [\n]            {cur_line++; line_start_ptr=YYCURSOR; continue;}
             [ \t\r]+        {continue;}

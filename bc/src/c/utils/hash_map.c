@@ -19,12 +19,12 @@ Bc_HashMap *bc_hm_new(bc_hm_hash_func hash_function,
     return map;
 }
 
-size_t bc_hash_map_compute_hash(Bc_HashMap *map, bc_hm_key key) {
+size_t bc_hash_map_compute_hash(Bc_HashMap *map, const bc_hm_key key) {
     return map->hash_funch(key) % BC_HASH_MAP_BUCKET_COUNT;
 }
 
 Bc_HashMapEntry *bc_hm_bucket_find_entry(Bc_HashMap *map, Bc_List *bucket,
-                                         bc_hm_key key) {
+                                         const bc_hm_key key) {
     Bc_HashMapEntry *map_entry;
     for (size_t i = 0; i < bucket->length; i++) {
         map_entry = (Bc_HashMapEntry *)bc_list_get(bucket, i);
@@ -39,7 +39,7 @@ Bc_HashMapEntry *bc_hm_bucket_find_entry(Bc_HashMap *map, Bc_List *bucket,
     return NULL;
 }
 
-Bc_HashMapEntry *bc_hash_map_put_ptr(Bc_HashMap *map, bc_hm_key key) {
+Bc_HashMapEntry *bc_hash_map_put_ptr(Bc_HashMap *map, const bc_hm_key key) {
     size_t hash = bc_hash_map_compute_hash(map, key);
     Bc_List *bucket = &map->buckets[hash];
 
@@ -57,7 +57,7 @@ Bc_HashMapEntry *bc_hash_map_put_ptr(Bc_HashMap *map, bc_hm_key key) {
     return map_entry;
 }
 
-Bc_HashMapEntry *bc_hash_map_get(Bc_HashMap *map, bc_hm_key key) {
+Bc_HashMapEntry *bc_hash_map_get(Bc_HashMap *map, const bc_hm_key key) {
     size_t hash = bc_hash_map_compute_hash(map, key);
     Bc_List *bucket = &map->buckets[hash];
     return bc_hm_bucket_find_entry(map, bucket, key);

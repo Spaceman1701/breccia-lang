@@ -12,14 +12,15 @@ typedef struct {
     TokenScanner *ts;
 } Bc_Parser;
 
-Bc_Token *bc_expect(TokenScanner *ts, Bc_TokenType);
+Bc_Token *bc_expect(TokenScanner *ts, Bc_TokenType type);
 
-Bc_Decl *bc_expect_decl(TokenScanner *ts);
-Bc_Expr *bc_expect_expr(TokenScanner *ts);
+Bc_Decl *bc_expect_decl(Bc_Parser *p);
+Bc_Expr *bc_expect_expr(Bc_Parser *p);
 Bc_Stmt *bc_expect_stmt(Bc_Parser *p);
 
-typedef void *(expect_func)(Bc_Parser *p);
+typedef void *(*expect_func)(Bc_Parser *p);
 
-void *handle_cache(expect_func func, Bc_Parser *p, FuncId *func_id);
+void *handle_cache(expect_func func, Bc_Parser *p, const FuncId *func_id);
 
-void *handle_left_recursion(expect_func func, Bc_Parser *p, FuncId *func_id);
+void *handle_left_recursion(expect_func func, Bc_Parser *p,
+                            const FuncId *func_id);
