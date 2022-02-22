@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdlib.h>
 
 // avoid leaking platform specific file I/O

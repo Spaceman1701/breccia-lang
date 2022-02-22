@@ -14,7 +14,7 @@ typedef struct {
 
 int bc_list_new(size_t element_size, size_t inital_capactiy, Bc_List *list);
 
-void bc_list_free(Bc_List *list);
+void bc_list_free_data(Bc_List *list);
 
 int bc_list_expand_capacity(Bc_List *list, size_t new_capacity);
 

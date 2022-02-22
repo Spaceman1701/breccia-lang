@@ -30,7 +30,7 @@ int bc_list_new(size_t element_size, size_t inital_capactiy, Bc_List *list) {
     return 0;
 }
 
-void bc_list_free(Bc_List *list) {
+void bc_list_free_data(Bc_List *list) {
     free(list->data);
     list->capacity = 0;
     list->length = 0;

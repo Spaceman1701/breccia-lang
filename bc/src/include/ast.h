@@ -1,12 +1,14 @@
+#pragma once
+
 #include "lexer.h"
 
 #define FORWARD_DECLARE(name) typedef struct name name;
 
 typedef enum Bc_ExprKind Bc_ExprKind;
-FORWARD_DECLARE(Bc_Expr);
+FORWARD_DECLARE(Bc_Expr)
 
 typedef enum Bc_StmtKind Bc_StmtKind;
-FORWARD_DECLARE(Bc_Stmt);
+FORWARD_DECLARE(Bc_Stmt)
 
 typedef enum Bc_DeclKind Bc_DeclKind;
 FORWARD_DECLARE(Bc_Decl)
@@ -25,26 +27,24 @@ FORWARD_DECLARE(Bc_FuncSig)
 FORWARD_DECLARE(Bc_VarDeclList)
 FORWARD_DECLARE(Bc_VarDecl)
 
-FORWARD_DECLARE(Bc_ReturnStmt);
-FORWARD_DECLARE(Bc_ExprStmt);
-FORWARD_DECLARE(Bc_AssignmentStmt);
-FORWARD_DECLARE(Bc_IfStmt);
-FORWARD_DECLARE(Bc_IfStmtBranch);
-FORWARD_DECLARE(Bc_IfStmtBranchList);
-FORWARD_DECLARE(Bc_Block);
-FORWARD_DECLARE(Bc_Assignable);
+FORWARD_DECLARE(Bc_ReturnStmt)
+FORWARD_DECLARE(Bc_ExprStmt)
+FORWARD_DECLARE(Bc_AssignmentStmt)
+FORWARD_DECLARE(Bc_IfStmt)
+FORWARD_DECLARE(Bc_IfStmtBranch)
+FORWARD_DECLARE(Bc_IfStmtBranchList)
+FORWARD_DECLARE(Bc_Block)
+FORWARD_DECLARE(Bc_Assignable)
 
-FORWARD_DECLARE(Bc_IntegerExpr);
-FORWARD_DECLARE(Bc_RealExpr);
-FORWARD_DECLARE(Bc_UnaryOpExpr);
-FORWARD_DECLARE(Bc_BinaryOpExpr);
-FORWARD_DECLARE(Bc_MemberAccessExpr);
-FORWARD_DECLARE(Bc_FuncCallExpr);
+FORWARD_DECLARE(Bc_IntegerExpr)
+FORWARD_DECLARE(Bc_RealExpr)
+FORWARD_DECLARE(Bc_UnaryOpExpr)
+FORWARD_DECLARE(Bc_BinaryOpExpr)
+FORWARD_DECLARE(Bc_MemberAccessExpr)
+FORWARD_DECLARE(Bc_FuncCallExpr)
 FORWARD_DECLARE(Bc_ExprList)
 
-typedef enum { Expr, End } Bc_CachableAstNodeKinds;
-
-const size_t Bc_AST_NON_TERMINAL_COUNT = End;
+typedef enum { Bc_AstExpr, Bc_AstEnd } Bc_CachableAstNodeKinds;
 
 enum Bc_DeclKind {
     Bc_DeclStructKind,

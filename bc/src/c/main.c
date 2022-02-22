@@ -3,6 +3,8 @@
 
 #include "lexer.h"
 
+#include "ast.h"
+
 int main(int argc, const char **argv) {
     if (argc < 2) {
         fprintf(stderr, "error: no input files\n");
