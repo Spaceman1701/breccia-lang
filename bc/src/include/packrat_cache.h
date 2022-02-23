@@ -14,6 +14,7 @@ typedef void *Bc_AstNode;
 typedef enum {
     RC_PACKRAT_RESULT_FAILURE = 0,
     RC_PACKRAT_RESULT_SUCCESS = 1,
+    RC_PACKRAT_RESULT_LEFT_RECURSION = 2,
 } Bc_PackratRuleResultType;
 
 typedef struct {
@@ -22,8 +23,10 @@ typedef struct {
 } Bc_PackratRuleSuccess;
 
 typedef struct {
-    // Eventually this will have a failure side
-    Bc_PackratRuleSuccess success;
+    union {
+        Bc_PackratRuleSuccess success;
+        bool left_recursion_detected;
+    };
     Bc_PackratRuleResultType result;
 } Bc_PackratRuleResult;
 

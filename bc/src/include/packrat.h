@@ -30,6 +30,12 @@ Bc_AstNode bc_expect_rule(PackratRuleFunc rule, Bc_PackratParser *p);
 #define BC_PACKRAT_FAILURE                                                     \
     (Bc_PackratRuleResult) { .result = RC_PACKRAT_RESULT_FAILURE }
 
+#define BC_PACKRAT_LR                                                          \
+    (Bc_PackratRuleResult) {                                                   \
+        .result = RC_PACKRAT_RESULT_LEFT_RECURSION,                            \
+        .left_recursion_detected = false                                       \
+    }
+
 #define BC_PACKRAT_SUCCESS(ast_node)                                           \
     (Bc_PackratRuleResult) {                                                   \
         .result = RC_PACKRAT_RESULT_SUCCESS,                                   \

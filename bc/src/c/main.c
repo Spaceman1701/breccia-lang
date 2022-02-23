@@ -29,8 +29,18 @@ int main(int argc, const char **argv) {
     Bc_PackratParser parser = {.ts = &ts};
     bc_packrat_cache_init(&parser.cache, ts.lexer.token_list.length);
 
-    Bc_IntegerExpr *i = bc_expect_rule(bc_integer_expr_rule, &parser);
-    if (i) {
-        printf("found integer\n");
+    printf("expr: %p\n", bc_expr_rule);
+    printf("integer: %p\n", bc_integer_expr_rule);
+    printf("binop: %p\n", bc_binop_expr_rule);
+
+    Bc_Expr *e = bc_expect_rule(bc_expr_rule, &parser);
+    if (e) {
+        if (e->kind == Bc_ExprBinaryOpType) {
+            printf("found binop\n");
+        } else if (e->kind == Bc_ExprIntegerKind) {
+            printf("found integer\n");
+        }
+    } else {
+        printf("no match\n");
     }
 }
