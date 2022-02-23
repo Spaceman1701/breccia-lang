@@ -1,15 +1,28 @@
 #include "parser_cache.h"
 
 void store_in_cache(Bc_MemoizationCache *cache, size_t location,
-                    const FuncId *func_id, void *value) {
+                    const FuncId *func_id, void *value, size_t end_pos) {
     Bc_PositionCache *pos_cache = &cache->entries[location];
     if (!pos_cache->map) {
         printf("the first access to the cache was a write\n");
         bc_position_cache_init(pos_cache);
     }
 
-    Bc_HashMapEntry *entry = bc_hash_map_put_ptr(pos_cache->map, &func_id);
-    entry->value = value;
+    Bc_HashMapEntry *entry = bc_hash_map_put_ptr(pos_cache->map, func_id);
+    if (entry->value == NULL) {
+        Bc_CacheEntry *new_entry = malloc(sizeof(Bc_CacheEntry));
+
+        entry->value = new_entry;
+        printf("adding map entry\n");
+    }
+
+    Bc_CacheEntry *v = (Bc_CacheEntry *)entry->value;
+
+    (*v) = (Bc_CacheEntry){
+        .value = value,
+        .end_pos = end_pos,
+        .set = true,
+    };
 }
 
 bool rc_memo_cache_keys_equal(const FuncId *a, const FuncId *b) {
@@ -38,8 +51,10 @@ Bc_CacheEntry *bc_memo_cache_get_value(Bc_MemoizationCache *cache, size_t index,
     }
     Bc_HashMapEntry *entry = bc_hash_map_get(pos_cache->map, func_id);
     if (!entry) {
+        printf("unknown entry\n");
         return NULL;
     } else {
+        printf("known entry\n");
         return (Bc_CacheEntry *)entry->value;
     }
 }

@@ -4,7 +4,9 @@
 #include "lexer.h"
 
 #include "ast.h"
-#include "parser.h"
+
+#include "packrat.h"
+#include "parser_rules.h"
 
 int main(int argc, const char **argv) {
     if (argc < 2) {
@@ -24,15 +26,11 @@ int main(int argc, const char **argv) {
     ts.lexer = s;
     ts.cursor = 0;
 
-    Bc_Parser parser;
-    parser.ts = &ts;
-    bc_memo_cache_init(&parser.cache, ts.lexer.token_list.length);
+    Bc_PackratParser parser = {.ts = &ts};
+    bc_packrat_cache_init(&parser.cache, ts.lexer.token_list.length);
 
-    Bc_Expr *expr = bc_expect_expr(&parser);
-
-    if (expr) {
-        printf("found an expr!\n");
+    Bc_IntegerExpr *i = bc_expect_rule(bc_integer_expr_rule, &parser);
+    if (i) {
+        printf("found integer\n");
     }
-
-    bc_lexer_print_all_tokens(&s);
 }

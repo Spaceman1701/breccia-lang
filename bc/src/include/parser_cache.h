@@ -11,6 +11,7 @@ typedef size_t FuncId;
 typedef struct {
     void *value;
     size_t end_pos;
+    bool set;
 } Bc_CacheEntry;
 
 typedef struct {
@@ -30,4 +31,4 @@ Bc_CacheEntry *bc_memo_cache_get_value(Bc_MemoizationCache *cache, size_t index,
                                        const FuncId *func_id);
 
 void store_in_cache(Bc_MemoizationCache *cache, size_t location,
-                    const FuncId *func_id, void *value);
+                    const FuncId *func_id, void *value, size_t end_pos);

@@ -25,6 +25,7 @@ size_t bc_hash_map_compute_hash(Bc_HashMap *map, const bc_hm_key key) {
 
 Bc_HashMapEntry *bc_hm_bucket_find_entry(Bc_HashMap *map, Bc_List *bucket,
                                          const bc_hm_key key) {
+
     Bc_HashMapEntry *map_entry;
     for (size_t i = 0; i < bucket->length; i++) {
         map_entry = (Bc_HashMapEntry *)bc_list_get(bucket, i);
