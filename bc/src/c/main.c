@@ -10,6 +10,10 @@
 #include "parser_rules.h"
 
 int main(int argc, const char **argv) {
+
+#ifdef LOG_LEVEL
+    log_set_level(LOG_LEVEL);
+#endif
     if (argc < 2) {
         fprintf(stderr, "error: no input files\n");
         return -1;

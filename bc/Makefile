@@ -4,6 +4,8 @@ RE2C = re2c
 
 EXE_NAME = bc
 
+LOG_FLAGS = -DLOG_USE_COLOR -DLOG_LEVEL=3
+
 BUILDDIR = build
 GENERATED_SOURCES_DIR = $(BUILDDIR)/generated_sources
 GENERATED_INCLUDES_DIR = $(BUILDDIR)/generated_includes
@@ -34,7 +36,7 @@ OBJECTS += $(LOG_C_OBJ)
 
 RE2C_FLAGS = -W -Werror -i --utf8 --case-ranges
 
-CFLAGS = -c -I$(GENERATED_INCLUDES_DIR) -I$(INCLUDE_DIR) -I$(LOG_C_INCLUDES) -Wall -Werror=incompatible-pointer-types
+CFLAGS = -c -I$(GENERATED_INCLUDES_DIR) -I$(INCLUDE_DIR) -I$(LOG_C_INCLUDES) $(LOG_FLAGS) -Wall -Werror=incompatible-pointer-types
 LDFLAGS = -g -O3
 
 $(warning $(OBJECTS))
