@@ -4,3 +4,4 @@
 
 CREATE_RULE(bc_integer_expr_rule);
 CREATE_RULE(bc_expr_rule);
+CREATE_RULE(bc_mul_div_mod_op);

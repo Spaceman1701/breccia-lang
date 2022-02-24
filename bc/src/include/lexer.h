@@ -25,8 +25,17 @@ typedef enum {
     BC_OP_ASSIGN,
     BC_OP_STAR,
     BC_OP_DOT,
-
     BC_OP_SCOPE,
+
+    BC_OP_PLUS,
+    BC_OP_MINUS,
+    BC_OP_DIV,
+    BC_OP_MOD,
+    BC_OP_XOR,
+    BC_OP_OR,
+    BC_OP_AND,
+    BC_OP_LOGICAL_AND,
+    BC_OP_LOGICAL_OR,
 
     BC_COMMA,
     BC_QUOTE,

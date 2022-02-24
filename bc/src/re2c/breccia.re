@@ -63,6 +63,16 @@ void lex(LexerState *s) {
             "."             {TOKEN(BC_OP_DOT)}
             "::"            {TOKEN(BC_OP_SCOPE)}
 
+            "+"             {TOKEN(BC_OP_PLUS)}
+            "-"             {TOKEN(BC_OP_MINUS)}
+            "/"             {TOKEN(BC_OP_DIV)}
+            "^"             {TOKEN(BC_OP_XOR)}
+            "|"             {TOKEN(BC_OP_OR)}
+            "&"             {TOKEN(BC_OP_AND)}
+
+            "and"           {TOKEN(BC_OP_LOGICAL_AND)}
+            "or"            {TOKEN(BC_OP_LOGICAL_OR)}
+
             ","             {TOKEN(BC_COMMA)}
             "\""            {TOKEN(BC_QUOTE)}
 
@@ -79,6 +89,9 @@ void lex(LexerState *s) {
 
             integer =       [0-9]+;
             integer         {TOKEN(BC_INTEGER)}
+
+            real =          [0-9]"."[0-9]*;
+            real            {TOKEN(BC_REAL)}
 
             "//"            {continue;}
             [\n]            {cur_line++; line_start_ptr=YYCURSOR; continue;}

@@ -54,8 +54,29 @@ int main(int argc, const char **argv) {
 
                 int left_int = atoi(left_str);
                 int right_int = atoi(right_str);
-                printf("%d * %d = %d\n", left_int, right_int,
-                       left_int * right_int);
+
+                Bc_Token *op = e->binary->operator;
+
+                int ans = -1;
+                switch (op->text_ptr[0]) {
+                case '*':
+                    ans = left_int * right_int;
+                    break;
+                case '/':
+                    ans = left_int / right_int;
+                    break;
+                case '+':
+                    ans = left_int + right_int;
+                    break;
+                case '-':
+                    ans = left_int - right_int;
+                    break;
+                default:
+                    break;
+                }
+
+                printf("%d %c %d = %d\n", left_int, op->text_ptr[0], right_int,
+                       ans);
             }
 
         } else if (e->kind == Bc_ExprIntegerKind) {
