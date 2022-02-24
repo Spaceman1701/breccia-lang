@@ -6,8 +6,13 @@
 #include "lexer.h"
 #include "packrat_cache.h"
 
-// see http://web.cs.ucla.edu/~todd/research/pepm08.pdf
+/* see http://web.cs.ucla.edu/~todd/research/pepm08.pdf
+ this file (and it's implementation) implement a LL(k) parser
+ with support for DIRECT left recursion through the simplified seed-growing
+ algorithm
 
+ Rules with INDIRECT left recursion WILL PARSE INCORRECTLY
+*/
 typedef struct {
     TokenScanner *ts;
     Bc_PackratCache cache;
