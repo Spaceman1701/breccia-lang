@@ -40,6 +40,19 @@ void bc_token_print_location(Bc_Token *tk, FILE *stream) {
             tk->position);
 }
 
+void bc_token_copy_text(Bc_Token *tk, char *buffer) {
+    for (size_t i = 0; i < tk->length; i++) {
+        buffer[i] = tk->text_ptr[i];
+    }
+    buffer[tk->length] = 0;
+}
+
+char *bc_token_alloc_copy_text(Bc_Token *tk) {
+    char *out_buf = malloc(tk->length + 1);
+    bc_token_copy_text(tk, out_buf);
+    return out_buf;
+}
+
 Bc_Token *bc_tscanner_peek(const TokenScanner *ts) {
     return bc_list_get(&ts->lexer.token_list, ts->cursor);
 }

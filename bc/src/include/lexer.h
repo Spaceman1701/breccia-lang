@@ -77,6 +77,10 @@ void bc_token_print(Bc_Token *tk, FILE *stream);
 
 void bc_token_print_location(Bc_Token *tk, FILE *stream);
 
+void bc_token_copy_text(Bc_Token *tk, char *buffer);
+
+char *bc_token_alloc_copy_text(Bc_Token *tk);
+
 void lex(LexerState *s);
 
 typedef struct {

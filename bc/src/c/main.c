@@ -38,6 +38,24 @@ int main(int argc, const char **argv) {
     if (e) {
         if (e->kind == Bc_ExprBinaryOpType) {
             printf("found binop\n");
+
+            Bc_Expr *left = e->binary->left;
+            Bc_Expr *right = e->binary->right;
+
+            if (left->kind == Bc_ExprIntegerKind &&
+                right->kind == Bc_ExprIntegerKind) {
+
+                char *left_str =
+                    bc_token_alloc_copy_text(left->integer_literal->integer);
+                char *right_str =
+                    bc_token_alloc_copy_text(right->integer_literal->integer);
+
+                int left_int = atoi(left_str);
+                int right_int = atoi(right_str);
+                printf("%d * %d = %d\n", left_int, right_int,
+                       left_int * right_int);
+            }
+
         } else if (e->kind == Bc_ExprIntegerKind) {
             printf("found integer\n");
         }
