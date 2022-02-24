@@ -2,6 +2,8 @@
 
 #include <stdbool.h>
 
+#include "log.h"
+
 #include "ast.h"
 #include "packrat.h"
 
@@ -28,6 +30,15 @@ bool expect_token_helper(Bc_Token **out, Bc_TokenType type,
 
 #define EXPECT_TK(name, type) (expect_token_helper(&name, type, p))
 
+#define START_ALTERNATIVE(name)                                                \
+    {                                                                          \
+        const char *alt_name = #name;                                          \
+        size_t pos = bc_packrat_mark(p);
+
+#define END_ALTERNATIVE()                                                      \
+    bc_packrat_reset(p, pos);                                                  \
+    }
+
 CREATE_RULE(bc_integer_expr_rule) {
     size_t pos = bc_packrat_mark(p);
     Bc_Token *tk = NULL;
@@ -41,51 +52,49 @@ CREATE_RULE(bc_integer_expr_rule) {
 }
 
 CREATE_RULE(bc_expr_rule) {
+    log_info("testing logging");
 
-    {
-        size_t pos = bc_packrat_mark(p);
+    START_ALTERNATIVE(binary_operation)
 
-        Bc_Expr *left;
-        Bc_Token *op;
-        Bc_Expr *right;
-        if (EXPECT(left, bc_expr_rule) && EXPECT_TK(op, BC_OP_STAR) &&
-            EXPECT(right, bc_expr_rule)) {
-            printf("foud binop at position %zu (ending at %zu)\n", pos,
-                   p->ts->cursor);
+    Bc_Expr *left;
+    Bc_Token *op;
+    Bc_Expr *right;
+    if (EXPECT(left, bc_expr_rule) && EXPECT_TK(op, BC_OP_STAR) &&
+        EXPECT(right, bc_expr_rule)) {
+        printf("foud binop at position %zu (ending at %zu)\n", pos,
+               p->ts->cursor);
 
-            Bc_BinaryOpExpr *binop = malloc(sizeof(Bc_BinaryOpExpr));
-            *binop = (Bc_BinaryOpExpr){
-                .left = left,
-                .right = right,
-                .operator= op,
-            };
+        Bc_BinaryOpExpr *binop = malloc(sizeof(Bc_BinaryOpExpr));
+        *binop = (Bc_BinaryOpExpr){
+            .left = left,
+            .right = right,
+            .operator= op,
+        };
 
-            Bc_Expr *expr = malloc(sizeof(Bc_Expr));
-            *expr = (Bc_Expr){
-                .binary = binop,
-                .kind = Bc_ExprBinaryOpType,
-            };
+        Bc_Expr *expr = malloc(sizeof(Bc_Expr));
+        *expr = (Bc_Expr){
+            .binary = binop,
+            .kind = Bc_ExprBinaryOpType,
+        };
 
-            return BC_PACKRAT_SUCCESS(expr);
-        }
-
-        bc_packrat_reset(p, pos);
+        return BC_PACKRAT_SUCCESS(expr);
     }
 
-    {
-        size_t pos = bc_packrat_mark(p);
-        Bc_IntegerExpr *integer;
-        if (EXPECT(integer, bc_integer_expr_rule)) {
-            Bc_Expr *expr = malloc(sizeof(Bc_Expr));
-            *expr = (Bc_Expr){
-                .integer_literal = integer,
-                .kind = Bc_ExprIntegerKind,
-            };
-            printf("found integer! New pos: %zu\n", bc_packrat_mark(p));
-            return BC_PACKRAT_SUCCESS(expr);
-        }
-        bc_packrat_reset(p, pos);
+    END_ALTERNATIVE()
+
+    START_ALTERNATIVE(integer_literal)
+    Bc_IntegerExpr *integer;
+    if (EXPECT(integer, bc_integer_expr_rule)) {
+        Bc_Expr *expr = malloc(sizeof(Bc_Expr));
+        *expr = (Bc_Expr){
+            .integer_literal = integer,
+            .kind = Bc_ExprIntegerKind,
+        };
+        printf("found integer! New pos: %zu\n", bc_packrat_mark(p));
+        return BC_PACKRAT_SUCCESS(expr);
     }
+
+    END_ALTERNATIVE()
 
     return BC_PACKRAT_FAILURE;
 }

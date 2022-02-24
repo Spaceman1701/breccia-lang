@@ -22,18 +22,22 @@ OBJ_SUBDIRS = $(patsubst $(CSRC_DIR)/%,$(OBJECT_FILE_DIR)/%,$(SRC_SUBDIRS))
 RE2_SOURCES = $(wildcard $(SRC_DIR)/re2c/*.re)
 GENERATED_SOURCES = $(patsubst $(SRC_DIR)/re2c/%.re,$(GENERATED_SOURCES_DIR)/%.re.c,$(RE2_SOURCES))
 
+LOG_C_SOURCE_DIR = ../external/log.c/src
+LOG_C_INCLUDES = ../external/log.c/src
+LOG_C_OBJS_DIR = $(BUILDDIR)/objs/ext/logc
+LOG_C_OBJ = $(LOG_C_OBJS_DIR)/log.o
+
 C_SOURCES = $(shell find $(CSRC_DIR) -type f -name '*.c')
 OBJECTS = $(patsubst $(CSRC_DIR)/%.c,$(OBJECT_FILE_DIR)/%.o,$(C_SOURCES))
 OBJECTS += $(patsubst $(GENERATED_SOURCES_DIR)/%.c,$(OBJECT_FILE_DIR)/%.o,$(GENERATED_SOURCES))
-
-$(info $(OBJECTS))
+OBJECTS += $(LOG_C_OBJ)
 
 RE2C_FLAGS = -W -Werror -i --utf8 --case-ranges
 
-CFLAGS = -c -I$(GENERATED_INCLUDES_DIR) -I$(INCLUDE_DIR) -Wall -Werror=incompatible-pointer-types
+CFLAGS = -c -I$(GENERATED_INCLUDES_DIR) -I$(INCLUDE_DIR) -I$(LOG_C_INCLUDES) -Wall -Werror=incompatible-pointer-types
 LDFLAGS = -g -O3
 
-$(info $(OBJECTS))
+$(warning $(OBJECTS))
 
 all: bc
 
@@ -51,6 +55,9 @@ build/objs/c/%.o: src/c/%.c dirs
 build/objs/c/%.re.o: $(GENERATED_SOURCES_DIR)/%.re.c
 	$(CC) -o $@ $< $(CFLAGS)
 
+$(LOG_C_OBJ): $(LOG_C_SOURCE_DIR)/log.c
+	$(CC) -o $@ $< $(CFLAGS)
+
 dirs:
 	mkdir -p $(BUILDDIR)
 	mkdir -p $(GENERATED_SOURCES_DIR)
@@ -58,6 +65,7 @@ dirs:
 	mkdir -p $(OBJECT_FILE_DIR)
 	mkdir -p $(OBJ_SUBDIRS)
 	mkdir -p $(BIN_DIR)
+	mkdir -p $(LOG_C_OBJS_DIR)
 
 clean:
 	rm -rf $(BUILDDIR)

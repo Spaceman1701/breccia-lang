@@ -1,3 +1,6 @@
 [submodule "external/re2c"]
 	path = external/re2c
 	url = git@github.com:skvadrik/re2c.git
+[submodule "external/log.c"]
+	path = external/log.c
+	url = https://github.com/rxi/log.c
