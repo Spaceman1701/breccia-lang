@@ -1,7 +1,6 @@
 #include "packrat.h"
 
-#include <stdbool.h>
-#include <stdio.h>
+#include "bc.h"
 
 size_t bc_packrat_mark(Bc_PackratParser *p) { return p->ts->cursor; }
 void bc_packrat_reset(Bc_PackratParser *p, size_t pos) { p->ts->cursor = pos; }
@@ -30,7 +29,7 @@ Bc_AstNode bc_expect_return(Bc_PackratRuleResult *res, Bc_PackratParser *p) {
 
 Bc_PackratRuleResult bc_grow_left_recursion(size_t pos, PackratRuleFunc rule,
                                             Bc_PackratParser *p) {
-    printf("growing seed: %zu %p\n", pos, rule);
+    log_trace("growing seed: %zu %p", pos, rule);
     Bc_PackratRuleResult last_result = BC_PACKRAT_FAILURE;
     size_t last_result_pos = pos;
     Bc_PackratCacheKey key = {
@@ -38,42 +37,36 @@ Bc_PackratRuleResult bc_grow_left_recursion(size_t pos, PackratRuleFunc rule,
         .location = pos,
     };
     while (true) {
-        bc_packrat_chache_print_value(&p->cache, key);
         bc_packrat_reset(p, pos);
         Bc_PackratRuleResult new_result = rule(p);
         if (!new_result.result ||
             new_result.success.position <= last_result_pos) {
-            printf("breaking left recursion loop (%p)\n", rule);
             break; // failed recursion
         }
-        printf("new position %zu\n", new_result.success.position);
         last_result_pos = new_result.success.position;
         last_result = new_result;
         bc_packrat_cache_put(&p->cache, key, new_result);
     }
 
     if (last_result.result) {
-        printf("grew successfully and returned value\n");
+        log_trace("grew successfully and returned value");
     }
 
     return last_result;
 }
 
 Bc_AstNode bc_expect_rule(PackratRuleFunc rule, Bc_PackratParser *p) {
-    printf("entering expect %p at pos %zu\n", rule, p->ts->cursor);
+    log_trace("entering expect %p at pos %zu", rule, p->ts->cursor);
     size_t pos = bc_packrat_mark(p);
     Bc_PackratCacheKey key = {
         .function = rule,
         .location = p->ts->cursor,
     };
     Bc_PackratRuleResult *cached_value = bc_packrat_cache_get(&p->cache, key);
-    printf("read cache for %p: %p\n", rule, cached_value);
     if (!cached_value) {
         bc_packrat_cache_put(&p->cache, key, BC_PACKRAT_LR);
-        bc_packrat_chache_print_value(&p->cache, key);
         Bc_PackratRuleResult new_result = rule(p);
-        printf("seeded value:");
-        bc_packrat_chache_print_value(&p->cache, key);
+
         Bc_PackratRuleResult updated_cache =
             *bc_packrat_cache_get(&p->cache, key);
 

@@ -63,5 +63,3 @@ Bc_PackratRuleResult *bc_packrat_cache_get(Bc_PackratCache *cache,
                                            Bc_PackratCacheKey key);
 void bc_packrat_cache_put(Bc_PackratCache *cache, Bc_PackratCacheKey key,
                           Bc_PackratRuleResult value);
-void bc_packrat_chache_print_value(Bc_PackratCache *cache,
-                                   Bc_PackratCacheKey key);

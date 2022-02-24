@@ -1,8 +1,6 @@
 #include "lexer.h"
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "bc.h"
 
 #include "utils/list.h"
 

@@ -1,5 +1,6 @@
 #include "utils/files.h"
-#include <stdio.h>
+
+#include "bc.h"
 
 #include "lexer.h"
 
@@ -30,9 +31,6 @@ int main(int argc, const char **argv) {
 
     Bc_PackratParser parser = {.ts = &ts};
     bc_packrat_cache_init(&parser.cache, ts.lexer.token_list.length);
-
-    printf("expr: %p\n", bc_expr_rule);
-    printf("integer: %p\n", bc_integer_expr_rule);
 
     Bc_Expr *e = bc_expect_rule(bc_expr_rule, &parser);
     if (e) {

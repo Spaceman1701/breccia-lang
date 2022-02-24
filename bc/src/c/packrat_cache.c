@@ -1,7 +1,6 @@
 #include "packrat_cache.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "bc.h"
 
 Bc_PackratHash bc_packrat_hash_key(Bc_PackratCacheKey k) {
     return ((size_t)k.function + k.location) % BC_PACKRAT_CACHE_BUCKET_COUNT;
@@ -9,17 +8,6 @@ Bc_PackratHash bc_packrat_hash_key(Bc_PackratCacheKey k) {
 
 bool bc_packrat_cache_keys_equal(Bc_PackratCacheKey a, Bc_PackratCacheKey b) {
     return (a.function == b.function) && (a.location == b.location);
-}
-
-void bc_packrat_chache_print_value(Bc_PackratCache *cache,
-                                   Bc_PackratCacheKey key) {
-    Bc_PackratRuleResult *v = bc_packrat_cache_get(cache, key);
-    if (v->result == RC_PACKRAT_RESULT_SUCCESS) {
-        printf("cache for (%zu, %p) value kind (end: %zu)\n", key.location,
-               key.function, v->success.position);
-    } else {
-        printf("no cached value at (%zu, %p)\n", key.location, key.function);
-    }
 }
 
 void bc_packrat_position_entry_init(Bc_PackratPositionEntry *entry) {
@@ -32,7 +20,7 @@ void bc_packrat_position_entry_init(Bc_PackratPositionEntry *entry) {
 void bc_packrat_cache_init(Bc_PackratCache *cache, size_t length) {
     cache->positions = calloc(length, sizeof(Bc_PackratPositionEntry));
     cache->length = length;
-    printf("initing packrat cache with %zu position entries\n", length);
+    log_trace("initing packrat cache with %zu position entries", length);
 }
 
 void bc_packrat_cache_init_position_if_needed(Bc_PackratCache *cache,

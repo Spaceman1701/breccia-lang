@@ -1,8 +1,6 @@
 #include "parser_rules.h"
 
-#include <stdbool.h>
-
-#include "log.h"
+#include "bc.h"
 
 #include "ast.h"
 #include "packrat.h"
@@ -33,7 +31,8 @@ bool expect_token_helper(Bc_Token **out, Bc_TokenType type,
 #define START_ALTERNATIVE(name)                                                \
     {                                                                          \
         const char *alt_name = #name;                                          \
-        size_t pos = bc_packrat_mark(p);
+        size_t pos = bc_packrat_mark(p);                                       \
+        log_trace("trying alternative: %s", alt_name);
 
 #define END_ALTERNATIVE()                                                      \
     bc_packrat_reset(p, pos);                                                  \
@@ -61,8 +60,6 @@ CREATE_RULE(bc_expr_rule) {
     Bc_Expr *right;
     if (EXPECT(left, bc_expr_rule) && EXPECT_TK(op, BC_OP_STAR) &&
         EXPECT(right, bc_expr_rule)) {
-        printf("foud binop at position %zu (ending at %zu)\n", pos,
-               p->ts->cursor);
 
         Bc_BinaryOpExpr *binop = malloc(sizeof(Bc_BinaryOpExpr));
         *binop = (Bc_BinaryOpExpr){
@@ -90,7 +87,6 @@ CREATE_RULE(bc_expr_rule) {
             .integer_literal = integer,
             .kind = Bc_ExprIntegerKind,
         };
-        printf("found integer! New pos: %zu\n", bc_packrat_mark(p));
         return BC_PACKRAT_SUCCESS(expr);
     }
 
