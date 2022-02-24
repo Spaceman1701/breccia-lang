@@ -55,6 +55,7 @@ void bc_packrat_position_entry_init(Bc_PackratPositionEntry *entry);
 // cache
 typedef struct {
     Bc_PackratPositionEntry *positions;
+    size_t length;
 } Bc_PackratCache;
 
 void bc_packrat_cache_init(Bc_PackratCache *cache, size_t length);
@@ -62,3 +63,5 @@ Bc_PackratRuleResult *bc_packrat_cache_get(Bc_PackratCache *cache,
                                            Bc_PackratCacheKey key);
 void bc_packrat_cache_put(Bc_PackratCache *cache, Bc_PackratCacheKey key,
                           Bc_PackratRuleResult value);
+void bc_packrat_chache_print_value(Bc_PackratCache *cache,
+                                   Bc_PackratCacheKey key);

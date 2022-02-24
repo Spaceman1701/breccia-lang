@@ -26,6 +26,8 @@ int main(int argc, const char **argv) {
     ts.lexer = s;
     ts.cursor = 0;
 
+    bc_lexer_print_all_tokens(&ts.lexer);
+
     Bc_PackratParser parser = {.ts = &ts};
     bc_packrat_cache_init(&parser.cache, ts.lexer.token_list.length);
 

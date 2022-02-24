@@ -6,6 +6,8 @@
 #include "lexer.h"
 #include "packrat_cache.h"
 
+// see http://web.cs.ucla.edu/~todd/research/pepm08.pdf
+
 typedef struct {
     TokenScanner *ts;
     Bc_PackratCache cache;

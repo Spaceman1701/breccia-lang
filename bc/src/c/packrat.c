@@ -28,21 +28,32 @@ Bc_AstNode bc_expect_return(Bc_PackratRuleResult *res, Bc_PackratParser *p) {
     return NULL;
 }
 
-Bc_PackratRuleResult bc_grow_left_recursion(Bc_PackratCacheKey key, size_t pos,
-                                            PackratRuleFunc rule,
+Bc_PackratRuleResult bc_grow_left_recursion(size_t pos, PackratRuleFunc rule,
                                             Bc_PackratParser *p) {
-    printf("growing seed: %p\n", rule);
+    printf("growing seed: %zu %p\n", pos, rule);
     Bc_PackratRuleResult last_result = BC_PACKRAT_FAILURE;
     size_t last_result_pos = pos;
+    Bc_PackratCacheKey key = {
+        .function = rule,
+        .location = pos,
+    };
     while (true) {
-        bc_packrat_reset(p, last_result_pos);
-        last_result = rule(p);
-        if (!last_result.result ||
-            last_result.success.position <= last_result_pos) {
+        bc_packrat_chache_print_value(&p->cache, key);
+        bc_packrat_reset(p, pos);
+        Bc_PackratRuleResult new_result = rule(p);
+        if (!new_result.result ||
+            new_result.success.position <= last_result_pos) {
             printf("breaking left recursion loop (%p)\n", rule);
             break; // failed recursion
         }
-        bc_packrat_cache_put(&p->cache, key, last_result);
+        printf("new position %zu\n", new_result.success.position);
+        last_result_pos = new_result.success.position;
+        last_result = new_result;
+        bc_packrat_cache_put(&p->cache, key, new_result);
+    }
+
+    if (last_result.result) {
+        printf("grew successfully and returned value\n");
     }
 
     return last_result;
@@ -56,24 +67,31 @@ Bc_AstNode bc_expect_rule(PackratRuleFunc rule, Bc_PackratParser *p) {
         .location = p->ts->cursor,
     };
     Bc_PackratRuleResult *cached_value = bc_packrat_cache_get(&p->cache, key);
+    printf("read cache for %p: %p\n", rule, cached_value);
     if (!cached_value) {
         bc_packrat_cache_put(&p->cache, key, BC_PACKRAT_LR);
+        bc_packrat_chache_print_value(&p->cache, key);
         Bc_PackratRuleResult new_result = rule(p);
+        printf("seeded value:");
+        bc_packrat_chache_print_value(&p->cache, key);
+        Bc_PackratRuleResult updated_cache =
+            *bc_packrat_cache_get(&p->cache, key);
+
         bc_packrat_cache_put(&p->cache, key, new_result);
-        if (new_result.result == RC_PACKRAT_RESULT_LEFT_RECURSION &&
-            new_result.left_recursion_detected) {
-            new_result = bc_grow_left_recursion(key, pos, rule, p);
+
+        bool lr_found =
+            (updated_cache.result == RC_PACKRAT_RESULT_LEFT_RECURSION) &&
+            (updated_cache.left_recursion_detected = true);
+        if (new_result.result && lr_found) {
+            new_result = bc_grow_left_recursion(pos, rule, p);
             return bc_expect_return(&new_result, p);
         } else {
             return bc_expect_return(&new_result, p);
         }
-
-        Bc_PackratRuleResult result = bc_grow_left_recursion(key, pos, rule, p);
-        return bc_expect_return(&result, p);
     } else {
         if (cached_value->result == RC_PACKRAT_RESULT_LEFT_RECURSION) {
             cached_value->left_recursion_detected = true;
-            printf("lr detected\n");
+            // printf("lr detected %p\n", rule);
             return NULL;
         }
         return bc_expect_return(cached_value, p);
