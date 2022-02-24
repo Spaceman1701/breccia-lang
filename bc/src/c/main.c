@@ -19,6 +19,8 @@ int main(int argc, const char **argv) {
         return -1;
     }
 
+    printf("foo\n");
+
     FileBuffer input_file;
     bc_files_read_file(argv[1], &input_file);
 

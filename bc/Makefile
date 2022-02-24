@@ -33,10 +33,12 @@ C_SOURCES = $(shell find $(CSRC_DIR) -type f -name '*.c')
 OBJECTS = $(patsubst $(CSRC_DIR)/%.c,$(OBJECT_FILE_DIR)/%.o,$(C_SOURCES))
 OBJECTS += $(patsubst $(GENERATED_SOURCES_DIR)/%.c,$(OBJECT_FILE_DIR)/%.o,$(GENERATED_SOURCES))
 OBJECTS += $(LOG_C_OBJ)
+DEPS = $(OBJECTS:.o=.d)
+
 
 RE2C_FLAGS = -W -Werror -i --utf8 --case-ranges
 
-CFLAGS = -c -I$(GENERATED_INCLUDES_DIR) -I$(INCLUDE_DIR) -I$(LOG_C_INCLUDES) $(LOG_FLAGS) -Wall -Werror=incompatible-pointer-types
+CFLAGS = -c -I$(GENERATED_INCLUDES_DIR) -I$(INCLUDE_DIR) -I$(LOG_C_INCLUDES) $(LOG_FLAGS) -Wall -Werror=incompatible-pointer-types -MMD
 LDFLAGS = -g -O3
 
 $(warning $(OBJECTS))
@@ -46,28 +48,27 @@ all: bc
 bc: $(EXE_FILE)
 
 $(EXE_FILE): $(OBJECTS)
+	mkdir -p $(BIN_DIR)
 	$(CC) -o $@ $(LDFLAGS) $(OBJECTS)
 
-$(GENERATED_SOURCES): $(RE2_SOURCES) dirs
+$(GENERATED_SOURCES): $(RE2_SOURCES)
+	mkdir -p $(GENERATED_SOURCES_DIR)
+	mkdir -p $(GENERATED_INCLUDES_DIR)
 	$(RE2C) $< -o $@ $(RE2C_FLAGS)
 
-build/objs/c/%.o: src/c/%.c dirs
+build/objs/c/%.o: src/c/%.c
+	mkdir -p $(OBJECT_FILE_DIR)
+	mkdir -p $(OBJ_SUBDIRS)
 	$(CC) -o $@ $< $(CFLAGS)
 
 build/objs/c/%.re.o: $(GENERATED_SOURCES_DIR)/%.re.c
 	$(CC) -o $@ $< $(CFLAGS)
 
 $(LOG_C_OBJ): $(LOG_C_SOURCE_DIR)/log.c
-	$(CC) -o $@ $< $(CFLAGS)
-
-dirs:
-	mkdir -p $(BUILDDIR)
-	mkdir -p $(GENERATED_SOURCES_DIR)
-	mkdir -p $(GENERATED_INCLUDES_DIR)
-	mkdir -p $(OBJECT_FILE_DIR)
-	mkdir -p $(OBJ_SUBDIRS)
-	mkdir -p $(BIN_DIR)
 	mkdir -p $(LOG_C_OBJS_DIR)
+	$(CC) -o $@ $< $(CFLAGS)
 
 clean:
 	rm -rf $(BUILDDIR)
+
+-include $(DEPS)
