@@ -33,7 +33,6 @@ int main(int argc, const char **argv) {
 
     printf("expr: %p\n", bc_expr_rule);
     printf("integer: %p\n", bc_integer_expr_rule);
-    printf("binop: %p\n", bc_binop_expr_rule);
 
     Bc_Expr *e = bc_expect_rule(bc_expr_rule, &parser);
     if (e) {

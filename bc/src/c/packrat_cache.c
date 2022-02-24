@@ -1,9 +1,10 @@
 #include "packrat_cache.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 Bc_PackratHash bc_packrat_hash_key(Bc_PackratCacheKey k) {
-    return (k.function + k.location) % BC_PACKRAT_CACHE_BUCKET_COUNT;
+    return ((size_t)k.function + k.location) % BC_PACKRAT_CACHE_BUCKET_COUNT;
 }
 
 bool bc_packrat_cache_keys_equal(Bc_PackratCacheKey a, Bc_PackratCacheKey b) {

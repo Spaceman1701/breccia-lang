@@ -7,7 +7,7 @@
 
 #define BC_PACKRAT_CACHE_BUCKET_COUNT 16
 
-typedef size_t Bc_FunctionId; // this might be best as a function ptr address
+typedef void *Bc_FunctionId; // this might be best as a function ptr address
 typedef size_t Bc_PackratHash;
 typedef void *Bc_AstNode;
 
