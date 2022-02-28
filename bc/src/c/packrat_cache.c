@@ -17,10 +17,27 @@ void bc_packrat_position_entry_init(Bc_PackratPositionEntry *entry) {
     entry->allocated = true;
 }
 
+void free_node_if_set(Bc_PackratRuleResult *res) {
+    if (res->result == RC_PACKRAT_RESULT_SUCCESS) {
+        if (res->success.node) {
+            free(res->success.node);
+            res->success.node = NULL;
+        }
+    }
+}
+
 void bc_packrat_cache_init(Bc_PackratCache *cache, size_t length) {
     cache->positions = calloc(length, sizeof(Bc_PackratPositionEntry));
     cache->length = length;
     log_trace("initing packrat cache with %zu position entries", length);
+}
+
+void bc_packrat_position_entry_free_owned(Bc_PackratPositionEntry *entry) {
+    if (entry->allocated) {
+        for (size_t i = 0; i < BC_PACKRAT_CACHE_BUCKET_COUNT; i++) {
+            bc_list_free_data(&entry->buckets[i]);
+        }
+    }
 }
 
 void bc_packrat_cache_init_position_if_needed(Bc_PackratCache *cache,
@@ -51,6 +68,7 @@ Bc_PackratRuleResult *bc_packrat_cache_get(Bc_PackratCache *cache,
 
     return NULL;
 }
+
 void bc_packrat_cache_put(Bc_PackratCache *cache, Bc_PackratCacheKey key,
                           Bc_PackratRuleResult new_value) {
     Bc_List *bucket = bc_packrat_cache_get_bucket(cache, key);
@@ -58,6 +76,12 @@ void bc_packrat_cache_put(Bc_PackratCache *cache, Bc_PackratCacheKey key,
     for (size_t i = 0; i < bucket->length; i++) {
         Bc_PackratCacheValue *value = bc_list_get(bucket, i);
         if (value->is_set && bc_packrat_cache_keys_equal(key, value->key)) {
+            if (value->result.result == RC_PACKRAT_RESULT_SUCCESS &&
+                new_value.result == RC_PACKRAT_RESULT_SUCCESS) {
+                printf("old: %p  new: %p\n", value->result.success.node,
+                       new_value.success.node);
+            }
+            // free_node_if_set(&value->result);
             value->result = new_value;
             return;
         }

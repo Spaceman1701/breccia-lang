@@ -47,10 +47,10 @@ FORWARD_DECLARE(Bc_ExprList)
 typedef enum { Bc_AstExpr, Bc_AstEnd } Bc_CachableAstNodeKinds;
 
 enum Bc_DeclKind {
-    Bc_DeclStructKind,
-    Bc_DeclInterfaceKind,
-    Bc_DeclImplKind,
-    Bc_DeclFuncKind,
+    BC_DECL_KIND_STRUCT,
+    BC_DECL_KIND_INTERFACE,
+    BC_DECL_KIND_IMPL,
+    BC_DECL_KIND_FUNC,
 };
 
 struct Bc_Decl {
@@ -66,13 +66,13 @@ struct Bc_Decl {
 
 // Expr tagged union
 enum Bc_ExprKind {
-    Bc_ExprIntegerKind,
-    Bc_ExprRealKind,
-    Bc_ExprVariableKind,
-    Bc_ExprUnaryOpType,
-    Bc_ExprBinaryOpType,
-    Bc_ExprMemoryAccessType,
-    Bc_ExprFunctionCallType,
+    BC_EXPR_KIND_INTEGER_LIT,
+    BC_EXPR_KIND_REAL_LIT,
+    BC_EXPR_KIND_VAR,
+    BC_EXPR_KIND_UNARY_OP,
+    BC_EXPR_KIND_BINARY_OP,
+    BC_EXPR_KIND_MEMBER_ACCESSOR,
+    BC_EXPR_KIND_FUNC_CALL,
 };
 
 struct Bc_Expr {
@@ -90,10 +90,10 @@ struct Bc_Expr {
 };
 
 enum Bc_StmtKind {
-    Bc_StmtReturnKind,
-    Bc_StmtExprKind,
-    Bc_AssignmentStmtKind,
-    Bc_IfStmtKind,
+    BC_STMT_KIND_RETURN,
+    BC_STMT_KIND_EXPR,
+    BC_STMT_KIND_ASSIGNMENT,
+    BC_STMT_KIND_IF,
 };
 
 struct Bc_Stmt {
@@ -241,7 +241,7 @@ struct Bc_MemberAccessExpr {
 };
 
 struct Bc_FuncCallExpr {
-    Bc_Expr function;
+    Bc_Expr *function;
     Bc_ExprList *args;
 };
 
@@ -257,3 +257,7 @@ struct Bc_IntegerExpr {
 struct Bc_RealExpr {
     Bc_Token *real_number;
 };
+
+void bc_ast_free_expr(Bc_Expr *expr);
+void bc_ast_free_decl(Bc_Decl *decl);
+void bc_ast_free_stmt(Bc_Stmt *stmt);

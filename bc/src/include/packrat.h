@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "arena.h"
 #include "lexer.h"
 #include "packrat_cache.h"
 
@@ -16,11 +17,14 @@
 typedef struct {
     TokenScanner *ts;
     Bc_PackratCache cache;
+    Bc_Arena arena;
 } Bc_PackratParser;
 
 // utility functions
 size_t bc_packrat_mark(Bc_PackratParser *p);
 void bc_packrat_reset(Bc_PackratParser *p, size_t pos);
+
+void bc_packrat_free_all_owned_memory(Bc_PackratParser *p);
 
 typedef Bc_PackratRuleResult (*PackratRuleFunc)(Bc_PackratParser *);
 

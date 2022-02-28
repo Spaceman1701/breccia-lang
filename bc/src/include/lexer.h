@@ -70,13 +70,13 @@ typedef struct {
 } Bc_Token;
 
 typedef struct {
-    const char *input_string;
+    char *input_string;
 
     Bc_List token_list;
 
 } LexerState;
 
-int init_lexer(LexerState *lexer, const char *input_string);
+int init_lexer(LexerState *lexer, char *input_string);
 
 int bc_lexer_append_token(LexerState *lexer, Bc_Token token);
 

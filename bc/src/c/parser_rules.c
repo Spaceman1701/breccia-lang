@@ -42,7 +42,7 @@ CREATE_RULE(bc_integer_expr_rule) {
     size_t pos = bc_packrat_mark(p);
     Bc_Token *tk = NULL;
     if ((tk = bc_expect_tk(p, BC_INTEGER))) {
-        Bc_IntegerExpr *expr = malloc(sizeof(Bc_IntegerExpr));
+        Bc_IntegerExpr *expr = bc_arena_alloc(p->arena, sizeof(Bc_IntegerExpr));
         expr->integer = tk;
         return BC_PACKRAT_SUCCESS(expr);
     }
@@ -51,8 +51,6 @@ CREATE_RULE(bc_integer_expr_rule) {
 }
 
 CREATE_RULE(bc_expr_rule) {
-    log_info("testing logging");
-
     START_ALTERNATIVE(binary_operation_mul_mod_div)
     Bc_Expr *left;
     Bc_Token *op;
@@ -62,17 +60,18 @@ CREATE_RULE(bc_expr_rule) {
          EXPECT_TK(op, BC_OP_MOD)) &&
         EXPECT(right, bc_expr_rule)) {
 
-        Bc_BinaryOpExpr *binop = malloc(sizeof(Bc_BinaryOpExpr));
+        Bc_BinaryOpExpr *binop =
+            bc_arena_alloc(p->arena, sizeof(Bc_BinaryOpExpr));
         *binop = (Bc_BinaryOpExpr){
             .left = left,
             .right = right,
             .operator= op,
         };
 
-        Bc_Expr *expr = malloc(sizeof(Bc_Expr));
+        Bc_Expr *expr = bc_arena_alloc(p->arena, sizeof(Bc_Expr));
         *expr = (Bc_Expr){
             .binary = binop,
-            .kind = Bc_ExprBinaryOpType,
+            .kind = BC_EXPR_KIND_BINARY_OP,
         };
 
         return BC_PACKRAT_SUCCESS(expr);
@@ -94,10 +93,10 @@ CREATE_RULE(bc_expr_rule) {
             .operator= op,
         };
 
-        Bc_Expr *expr = malloc(sizeof(Bc_Expr));
+        Bc_Expr *expr = bc_arena_alloc(p->arena, sizeof(Bc_Expr));
         *expr = (Bc_Expr){
             .binary = binop,
-            .kind = Bc_ExprBinaryOpType,
+            .kind = BC_EXPR_KIND_BINARY_OP,
         };
 
         return BC_PACKRAT_SUCCESS(expr);
@@ -107,10 +106,10 @@ CREATE_RULE(bc_expr_rule) {
     START_ALTERNATIVE(integer_literal)
     Bc_IntegerExpr *integer;
     if (EXPECT(integer, bc_integer_expr_rule)) {
-        Bc_Expr *expr = malloc(sizeof(Bc_Expr));
+        Bc_Expr *expr = bc_arena_alloc(p->arena, sizeof(Bc_Expr));
         *expr = (Bc_Expr){
             .integer_literal = integer,
-            .kind = Bc_ExprIntegerKind,
+            .kind = BC_EXPR_KIND_INTEGER_LIT,
         };
         return BC_PACKRAT_SUCCESS(expr);
     }
@@ -141,3 +140,7 @@ CREATE_RULE(bc_mul_div_mod_op) {
 
     return BC_PACKRAT_FAILURE;
 }
+
+CREATE_RULE(bc_decl_rule) {}
+
+CREATE_RULE(bc_struct_decl_rule);

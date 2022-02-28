@@ -51,6 +51,7 @@ typedef struct {
 } Bc_PackratPositionEntry;
 
 void bc_packrat_position_entry_init(Bc_PackratPositionEntry *entry);
+void bc_packrat_position_entry_free_owned(Bc_PackratPositionEntry *entry);
 
 // cache
 typedef struct {

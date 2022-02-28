@@ -5,6 +5,13 @@
 size_t bc_packrat_mark(Bc_PackratParser *p) { return p->ts->cursor; }
 void bc_packrat_reset(Bc_PackratParser *p, size_t pos) { p->ts->cursor = pos; }
 
+void bc_packrat_free_all_owned_memory(Bc_PackratParser *p) {
+    for (size_t i = 0; i < p->cache.length; i++) {
+        bc_packrat_position_entry_free_owned(&p->cache.positions[i]);
+    }
+    free(p->cache.positions);
+}
+
 bool bc_rule_succees(Bc_PackratRuleResult result) {
     return result.result == RC_PACKRAT_RESULT_SUCCESS;
 }
@@ -16,6 +23,12 @@ Bc_Token *bc_expect_tk(Bc_PackratParser *p, Bc_TokenType ty) {
         return t;
     }
     return NULL;
+}
+
+void bc_packrat_cache_safe_replace(Bc_PackratParser *parser,
+                                   Bc_PackratCacheKey key,
+                                   Bc_PackratRuleResult new_value) {
+    bc_packrat_cache_put(&parser->cache, key, new_value);
 }
 
 Bc_AstNode bc_expect_return(Bc_PackratRuleResult *res, Bc_PackratParser *p) {
@@ -45,7 +58,7 @@ Bc_PackratRuleResult bc_grow_left_recursion(size_t pos, PackratRuleFunc rule,
         }
         last_result_pos = new_result.success.position;
         last_result = new_result;
-        bc_packrat_cache_put(&p->cache, key, new_result);
+        bc_packrat_cache_safe_replace(p, key, new_result);
     }
 
     if (last_result.result) {
@@ -64,13 +77,13 @@ Bc_AstNode bc_expect_rule(PackratRuleFunc rule, Bc_PackratParser *p) {
     };
     Bc_PackratRuleResult *cached_value = bc_packrat_cache_get(&p->cache, key);
     if (!cached_value) {
-        bc_packrat_cache_put(&p->cache, key, BC_PACKRAT_LR);
+        bc_packrat_cache_safe_replace(p, key, BC_PACKRAT_LR);
         Bc_PackratRuleResult new_result = rule(p);
 
         Bc_PackratRuleResult updated_cache =
             *bc_packrat_cache_get(&p->cache, key);
 
-        bc_packrat_cache_put(&p->cache, key, new_result);
+        bc_packrat_cache_safe_replace(p, key, new_result);
 
         bool lr_found =
             (updated_cache.result == RC_PACKRAT_RESULT_LEFT_RECURSION) &&

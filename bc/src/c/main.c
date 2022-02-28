@@ -14,6 +14,7 @@ int main(int argc, const char **argv) {
 #ifdef LOG_LEVEL
     log_set_level(LOG_LEVEL);
 #endif
+    log_set_level(LOG_INFO);
     if (argc < 2) {
         fprintf(stderr, "error: no input files\n");
         return -1;
@@ -37,17 +38,18 @@ int main(int argc, const char **argv) {
 
     Bc_PackratParser parser = {.ts = &ts};
     bc_packrat_cache_init(&parser.cache, ts.lexer.token_list.length);
+    parser.arena = bc_arena_new(1024 * 1024);
 
     Bc_Expr *e = bc_expect_rule(bc_expr_rule, &parser);
     if (e) {
-        if (e->kind == Bc_ExprBinaryOpType) {
+        if (e->kind == BC_EXPR_KIND_BINARY_OP) {
             printf("found binop\n");
 
             Bc_Expr *left = e->binary->left;
             Bc_Expr *right = e->binary->right;
 
-            if (left->kind == Bc_ExprIntegerKind &&
-                right->kind == Bc_ExprIntegerKind) {
+            if (left->kind == BC_EXPR_KIND_INTEGER_LIT &&
+                right->kind == BC_EXPR_KIND_INTEGER_LIT) {
 
                 char *left_str =
                     bc_token_alloc_copy_text(left->integer_literal->integer);
@@ -81,10 +83,14 @@ int main(int argc, const char **argv) {
                        ans);
             }
 
-        } else if (e->kind == Bc_ExprIntegerKind) {
+        } else if (e->kind == BC_EXPR_KIND_INTEGER_LIT) {
             printf("found integer\n");
         }
     } else {
         printf("no match\n");
     }
+    bc_arena_free(parser.arena);
+    bc_list_free_data(&ts.lexer.token_list);
+    bc_packrat_free_all_owned_memory(&parser);
+    free(ts.lexer.input_string);
 }

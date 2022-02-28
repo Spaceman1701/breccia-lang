@@ -4,7 +4,7 @@
 
 #include "utils/list.h"
 
-int init_lexer(LexerState *lexer, const char *input_string) {
+int init_lexer(LexerState *lexer, char *input_string) {
     lexer->input_string = input_string;
     return bc_list_new(sizeof(Bc_Token), 8, &lexer->token_list);
 }
