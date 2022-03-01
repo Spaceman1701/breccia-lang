@@ -31,4 +31,5 @@ void *bc_arena_alloc(Bc_Arena arena_in, size_t size) {
 void bc_arena_free(Bc_Arena arena_in) {
     Arena *arena = (Arena *)arena_in;
     free(arena->memory_base_ptr);
+    free(arena);
 }

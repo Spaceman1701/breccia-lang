@@ -58,6 +58,8 @@ int main(int argc, const char **argv) {
 
                 int left_int = atoi(left_str);
                 int right_int = atoi(right_str);
+                free(left_str);
+                free(right_str);
 
                 Bc_Token *op = e->binary->operator;
 
@@ -92,5 +94,6 @@ int main(int argc, const char **argv) {
     bc_arena_free(parser.arena);
     bc_list_free_data(&ts.lexer.token_list);
     bc_packrat_free_all_owned_memory(&parser);
-    free(ts.lexer.input_string);
+    // free(ts.lexer.input_string);
+    bc_files_free_owned_memory(&input_file);
 }
