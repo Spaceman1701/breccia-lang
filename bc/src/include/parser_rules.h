@@ -8,3 +8,8 @@ CREATE_RULE(bc_mul_div_mod_op);
 
 CREATE_RULE(bc_decl_rule);
 CREATE_RULE(bc_struct_decl_rule);
+CREATE_RULE(bc_struct_field_rule);
+
+CREATE_RULE(bc_type_annotation_rule);
+
+CREATE_RULE(bc_ident_rule);

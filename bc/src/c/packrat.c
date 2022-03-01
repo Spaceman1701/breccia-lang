@@ -18,7 +18,7 @@ bool bc_rule_succees(Bc_PackratRuleResult result) {
 
 Bc_Token *bc_expect_tk(Bc_PackratParser *p, Bc_TokenType ty) {
     Bc_Token *t = bc_list_get(&p->ts->lexer.token_list, p->ts->cursor);
-    if (t) {
+    if (t->type == ty) {
         p->ts->cursor += 1;
         return t;
     }
@@ -32,11 +32,12 @@ void bc_packrat_cache_safe_replace(Bc_PackratParser *parser,
 }
 
 Bc_AstNode bc_expect_return(Bc_PackratRuleResult *res, Bc_PackratParser *p) {
-    if (res->result) {
+    log_trace("handling cache return unboxing for %p", res);
+    if (res->result == RC_PACKRAT_RESULT_SUCCESS) {
+        log_trace("result is success with end pos %zu", res->success.position);
         bc_packrat_reset(p, res->success.position);
         return res->success.node;
     }
-    printf("found cache failure\n");
     return NULL;
 }
 
@@ -68,6 +69,13 @@ Bc_PackratRuleResult bc_grow_left_recursion(size_t pos, PackratRuleFunc rule,
     return last_result;
 }
 
+bool check_left_recursion(Bc_PackratCache *cache, Bc_PackratCacheKey key) {
+    Bc_PackratRuleResult *updated_cache = bc_packrat_cache_get(cache, key);
+    return (updated_cache) &&
+           (updated_cache->result == RC_PACKRAT_RESULT_LEFT_RECURSION) &&
+           (updated_cache->left_recursion_detected);
+}
+
 Bc_AstNode bc_expect_rule(PackratRuleFunc rule, Bc_PackratParser *p) {
     log_trace("entering expect %p at pos %zu", rule, p->ts->cursor);
     size_t pos = bc_packrat_mark(p);
@@ -77,17 +85,13 @@ Bc_AstNode bc_expect_rule(PackratRuleFunc rule, Bc_PackratParser *p) {
     };
     Bc_PackratRuleResult *cached_value = bc_packrat_cache_get(&p->cache, key);
     if (!cached_value) {
+        log_trace("no previous cache entry found %p %zu", rule, p->ts->cursor);
         bc_packrat_cache_safe_replace(p, key, BC_PACKRAT_LR);
         Bc_PackratRuleResult new_result = rule(p);
-
-        Bc_PackratRuleResult updated_cache =
-            *bc_packrat_cache_get(&p->cache, key);
-
+        log_trace("finished running rule");
+        bool lr_found = check_left_recursion(&p->cache, key);
         bc_packrat_cache_safe_replace(p, key, new_result);
 
-        bool lr_found =
-            (updated_cache.result == RC_PACKRAT_RESULT_LEFT_RECURSION) &&
-            (updated_cache.left_recursion_detected = true);
         if (new_result.result && lr_found) {
             new_result = bc_grow_left_recursion(pos, rule, p);
             return bc_expect_return(&new_result, p);
@@ -95,11 +99,13 @@ Bc_AstNode bc_expect_rule(PackratRuleFunc rule, Bc_PackratParser *p) {
             return bc_expect_return(&new_result, p);
         }
     } else {
+        log_trace("previous cache entry fodun %p %zu", rule, p->ts->cursor);
         if (cached_value->result == RC_PACKRAT_RESULT_LEFT_RECURSION) {
             cached_value->left_recursion_detected = true;
-            // printf("lr detected %p\n", rule);
+            log_trace("lr detected");
             return NULL;
         }
+        log_trace("no lr");
         return bc_expect_return(cached_value, p);
     }
 }

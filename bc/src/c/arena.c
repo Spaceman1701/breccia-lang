@@ -10,6 +10,7 @@ typedef struct {
 } Arena;
 
 Bc_Arena bc_arena_new(size_t capacity) {
+    log_trace("allocating arena block with %zu bytes capacity", capacity);
     Arena *arena = malloc(sizeof(Arena));
     arena->memory_base_ptr = malloc(capacity);
     arena->memory_size = capacity;
@@ -19,12 +20,13 @@ Bc_Arena bc_arena_new(size_t capacity) {
 
 void *bc_arena_alloc(Bc_Arena arena_in, size_t size) {
     Arena *arena = (Arena *)arena_in;
-    if (size + arena->head_index > arena->memory_size) {
+    if ((size + arena->head_index) >= arena->memory_size) {
         log_error("arena alloc failed: not enough capacity");
         return NULL; // TODO: grow arena
     }
     void *out_ptr = arena->memory_base_ptr + arena->head_index;
     arena->head_index += size;
+    log_trace("arena usage: %zu/%zu", arena->head_index, arena->memory_size);
     return out_ptr;
 }
 

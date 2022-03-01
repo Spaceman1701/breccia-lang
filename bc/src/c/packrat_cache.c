@@ -76,12 +76,6 @@ void bc_packrat_cache_put(Bc_PackratCache *cache, Bc_PackratCacheKey key,
     for (size_t i = 0; i < bucket->length; i++) {
         Bc_PackratCacheValue *value = bc_list_get(bucket, i);
         if (value->is_set && bc_packrat_cache_keys_equal(key, value->key)) {
-            if (value->result.result == RC_PACKRAT_RESULT_SUCCESS &&
-                new_value.result == RC_PACKRAT_RESULT_SUCCESS) {
-                printf("old: %p  new: %p\n", value->result.success.node,
-                       new_value.success.node);
-            }
-            // free_node_if_set(&value->result);
             value->result = new_value;
             return;
         }
