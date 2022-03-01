@@ -9,6 +9,30 @@
 #include "packrat.h"
 #include "parser_rules.h"
 
+#include "cursor.h"
+
+Bc_CursorVisitResult print_structs(Bc_Cursor parent, Bc_Cursor node) {
+    char text_buf[256];
+    if (parent.kind == Bc_CursorKind_StructDecl) {
+        if (node.kind == Bc_CursorKind_Name) {
+            const Bc_Token *name = node.data;
+            bc_token_copy_text(name, text_buf);
+            printf("struct %s\n", text_buf);
+            return Bc_CursorVisitResult_Continue;
+        }
+        if (node.kind == Bc_CursorKind_StructField) {
+            const Bc_StructField *field = node.data;
+            printf("  field ");
+            bc_token_copy_text(field->name, text_buf);
+            printf("%s ", text_buf);
+            bc_token_copy_text(field->type->name, text_buf);
+            printf("%s\n", text_buf);
+            return Bc_CursorVisitResult_Continue;
+        }
+    }
+    return Bc_CursorVisitResult_Recurse;
+}
+
 int main(int argc, const char **argv) {
 
 #ifdef LOG_LEVEL
@@ -44,6 +68,13 @@ int main(int argc, const char **argv) {
     if (decl) {
         printf("found decl!\n");
     }
+
+    Bc_Cursor root_cursor = {
+        .data = decl,
+        .kind = Bc_CursorKind_Decl,
+    };
+
+    bc_cursor_visit_children(root_cursor, print_structs);
 
     bc_arena_free(parser.arena);
     bc_list_free_data(&ts.lexer.token_list);

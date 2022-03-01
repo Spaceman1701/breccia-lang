@@ -38,7 +38,7 @@ void bc_token_print_location(Bc_Token *tk, FILE *stream) {
             tk->position);
 }
 
-void bc_token_copy_text(Bc_Token *tk, char *buffer) {
+void bc_token_copy_text(const Bc_Token *tk, char *buffer) {
     for (size_t i = 0; i < tk->length; i++) {
         buffer[i] = tk->text_ptr[i];
     }

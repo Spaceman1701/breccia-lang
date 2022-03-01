@@ -25,6 +25,7 @@ typedef enum {
     kind(FunctionSignature),
     kind(StructField),
     kind(Assignable),
+    kind(Name)
 } Bc_CursorKind;
 #undef kind
 
