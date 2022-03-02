@@ -4,8 +4,6 @@
 
 #include "ast.h"
 
-#define kind(name) Bc_CursorKind_##name
-
 bool perform_visit(Bc_Cursor parent, Bc_Cursor child,
                    Bc_CursorVisitor visitor) {
     Bc_CursorVisitResult result = visitor(parent, child);
@@ -114,17 +112,53 @@ void visit_type_annotation(Bc_Cursor type_annotation_cursor,
 
 void bc_cursor_visit_children(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
     switch (cursor.kind) {
-    case kind(Expr):
+    case Bc_CursorKind_Expr:
         dispatch(visit_expr);
-    case kind(Decl):
+    case Bc_CursorKind_Stmt:
+        break;
+    case Bc_CursorKind_Decl:
         dispatch(visit_decl);
+    case Bc_CursorKind_IntegerLiteral:
+        break;
+    case Bc_CursorKind_RealLiteral:
+        break;
+    case Bc_CursorKind_Ident:
+        break;
+    case Bc_CursorKind_UnaryOperation:
+        break;
+    case Bc_CursorKind_BinaryOperation:
+        break;
+    case Bc_CursorKind_MemberAccessor:
+        break;
+    case Bc_CursorKind_FunctionCall:
+        break;
     case Bc_CursorKind_StructDecl:
         dispatch(visit_struct_decl);
-    case Bc_CursorKind_StructField:
-        dispatch(visit_struct_field);
-    case Bc_CursorKind_Name:
+    case Bc_CursorKind_InterfaceDecl:
+        break;
+    case Bc_CursorKind_ImplDecl:
+        break;
+    case Bc_CursorKind_FuncDecl:
+        break;
+    case Bc_CursorKind_VarDecl:
+        break;
+    case Bc_CursorKind_ReturnStmt:
+        break;
+    case Bc_CursorKind_ExprStmt:
+        break;
+    case Bc_CursorKind_AssignmentStmt:
+        break;
+    case Bc_CursorKind_IfStmt:
         break;
     case Bc_CursorKind_TypeAnnotation:
         dispatch(visit_type_annotation);
+    case Bc_CursorKind_FunctionSignature:
+        break;
+    case Bc_CursorKind_StructField:
+        dispatch(visit_struct_field);
+    case Bc_CursorKind_Assignable:
+        break;
+    case Bc_CursorKind_Name:
+        break;
     }
 }

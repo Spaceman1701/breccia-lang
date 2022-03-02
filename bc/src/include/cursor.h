@@ -1,33 +1,31 @@
 #pragma once
 
-#define kind(name) Bc_CursorKind_##name
 typedef enum {
-    kind(Expr),
-    kind(Stmt),
-    kind(Decl),
-    kind(IntegerLiteral),
-    kind(RealLiteral),
-    kind(Ident),
-    kind(UnaryOperation),
-    kind(BinaryOperation),
-    kind(MemberAccessor),
-    kind(FunctionCall),
-    kind(StructDecl),
-    kind(InterfaceDecl),
-    kind(ImplDecl),
-    kind(FuncDecl),
-    kind(VarDecl),
-    kind(ReturnStmt),
-    kind(ExprStmt),
-    kind(AssignmentStmt),
-    kind(IfStmt),
-    kind(TypeAnnotation),
-    kind(FunctionSignature),
-    kind(StructField),
-    kind(Assignable),
-    kind(Name)
+    Bc_CursorKind_Expr,
+    Bc_CursorKind_Stmt,
+    Bc_CursorKind_Decl,
+    Bc_CursorKind_IntegerLiteral,
+    Bc_CursorKind_RealLiteral,
+    Bc_CursorKind_Ident,
+    Bc_CursorKind_UnaryOperation,
+    Bc_CursorKind_BinaryOperation,
+    Bc_CursorKind_MemberAccessor,
+    Bc_CursorKind_FunctionCall,
+    Bc_CursorKind_StructDecl,
+    Bc_CursorKind_InterfaceDecl,
+    Bc_CursorKind_ImplDecl,
+    Bc_CursorKind_FuncDecl,
+    Bc_CursorKind_VarDecl,
+    Bc_CursorKind_ReturnStmt,
+    Bc_CursorKind_ExprStmt,
+    Bc_CursorKind_AssignmentStmt,
+    Bc_CursorKind_IfStmt,
+    Bc_CursorKind_TypeAnnotation,
+    Bc_CursorKind_FunctionSignature,
+    Bc_CursorKind_StructField,
+    Bc_CursorKind_Assignable,
+    Bc_CursorKind_Name
 } Bc_CursorKind;
-#undef kind
 
 typedef enum {
     Bc_CursorVisitResult_Recurse,
