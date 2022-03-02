@@ -51,7 +51,7 @@ void lex(LexerState *s) {
             "struct"        {TOKEN(BC_KW_STRUCT)}
             "impl"          {TOKEN(BC_KW_IMPL)}
             "for"           {TOKEN(BC_KW_FOR)}
-            "func"          {TOKEN(BC_KW_FUNC)}
+            "fn"          {TOKEN(BC_KW_FUNC)}
             "alias"         {TOKEN(BC_KW_ALIAS)}
             "let"           {TOKEN(BC_KW_LET)}
             "if"            {TOKEN(BC_KW_IF)}

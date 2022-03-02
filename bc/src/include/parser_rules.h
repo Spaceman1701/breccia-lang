@@ -19,6 +19,8 @@ CREATE_RULE(bc_func_sig_rule);
 CREATE_RULE(bc_block_rule);
 CREATE_RULE(bc_var_decl_rule);
 
+CREATE_RULE(bc_func_args_rule);
+
 bool expect_helper(void **out, PackratRuleFunc func, Bc_PackratParser *p);
 bool expect_token_helper(Bc_Token **out, Bc_TokenType type,
                          Bc_PackratParser *p);
@@ -40,3 +42,20 @@ bool expect_token_helper(Bc_Token **out, Bc_TokenType type,
 #define AST_ALLOC(type, variable)                                              \
     type *variable = bc_arena_alloc(p->arena, sizeof(type));                   \
     (*variable) = (type)
+
+#define EXPECT_LIST(entry_type, rule, out_data, out_len)                       \
+    {                                                                          \
+        size_t before_list = bc_packrat_mark(p);                               \
+        entry_type *temp_entry;                                                \
+        size_t count = 0;                                                      \
+        while (EXPECT(temp_entry, rule)) {                                     \
+            count += 1;                                                        \
+        }                                                                      \
+        bc_packrat_reset(p, before_list);                                      \
+        out_data = bc_arena_alloc(p->arena, sizeof(entry_type) * count);       \
+        out_len = count;                                                       \
+        for (size_t i = 0; i < count; i++) {                                   \
+            temp_entry = (entry_type *)bc_expect_rule(rule, p);                \
+            out_data[i] = *temp_entry;                                         \
+        }                                                                      \
+    }

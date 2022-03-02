@@ -111,6 +111,9 @@ void visit_type_annotation(Bc_Cursor type_annotation_cursor,
     break;
 
 void bc_cursor_visit_children(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    if (cursor.data == NULL) {
+        return;
+    }
     switch (cursor.kind) {
     case Bc_CursorKind_Expr:
         dispatch(visit_expr);

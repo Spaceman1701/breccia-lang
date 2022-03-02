@@ -157,12 +157,13 @@ struct Bc_FuncDecl {
     Bc_Token *alias;
     Bc_Token *equals;
     Bc_Ident *target;
+    Bc_Block *impl;
 };
 
 struct Bc_FuncSig {
     Bc_Token *kw_fn;
     Bc_Token *name;
-    Bc_VarDecl *params;
+    Bc_VarDeclList *params;
     Bc_TypeAnnotation *return_type;
 };
 

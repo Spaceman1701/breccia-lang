@@ -18,6 +18,17 @@ CREATE_RULE(bc_decl_rule) {
     }
     END_ALTERNATIVE()
 
+    START_ALTERNATIVE(func_decl)
+    Bc_FuncDecl *func_decl;
+    if (EXPECT(func_decl, bc_func_decl_rule)) {
+        AST_ALLOC(Bc_Decl, decl){
+            .kind = BC_DECL_KIND_FUNC,
+            .func_decl = func_decl,
+        };
+        return BC_PACKRAT_SUCCESS(decl);
+    }
+    END_ALTERNATIVE()
+
     return BC_PACKRAT_FAILURE;
 }
 
@@ -34,31 +45,17 @@ CREATE_RULE(bc_struct_decl_rule) {
         EXPECT_TK(kw_struct, BC_KW_STRUCT) && EXPECT_TK(lcurly, BC_LCURLY);
     log_trace("checking decl header %d", decl_header_match);
     if (!decl_header_match) {
+        bc_packrat_reset(p, pos);
         return BC_PACKRAT_FAILURE;
     }
 
-    size_t before_fields = bc_packrat_mark(p);
-    Bc_StructField *struct_field;
-    size_t field_count = 0;
-    while (EXPECT(struct_field, bc_struct_field_rule)) {
-        field_count += 1;
-        log_trace("struct fields %zu", field_count);
-    }
-    log_info("discovered %zu fields", field_count);
-    bc_packrat_reset(p, before_fields);
-
     AST_ALLOC(Bc_StructFieldList, field_list){
-        .fields =
-            bc_arena_alloc(p->arena, sizeof(Bc_StructField) * field_count),
-        .length = field_count,
+        .fields = NULL,
+        .length = 0,
     };
 
-    for (size_t i = 0; i < field_count; i++) {
-        struct_field =
-            (Bc_StructField *)bc_expect_rule(bc_struct_field_rule, p);
-        field_list->fields[i] = *struct_field;
-    }
-    log_trace("expected field list is %zu", field_list->length);
+    EXPECT_LIST(Bc_StructField, bc_struct_field_rule, field_list->fields,
+                field_list->length);
 
     if (EXPECT_TK(rcurly, BC_RCURLY)) {
 
@@ -116,12 +113,87 @@ CREATE_RULE(bc_func_decl_rule) {
     START_ALTERNATIVE(function_impl)
     Bc_Token *kw_fn;
     Bc_Token *name;
-    Bc_FuncSigList *sig_list;
-    Bc_Token *lcurly;
+    Bc_Token *lparen;
+    Bc_VarDeclList *args_list;
+    Bc_Token *rparen;
     Bc_Block *impl;
-    Bc_Token *rcurly;
+    Bc_TypeAnnotation *ret_type;
+
+    if (EXPECT_TK(kw_fn, BC_KW_FUNC) && EXPECT_TK(name, BC_NAME) &&
+        EXPECT_TK(lparen, BC_LPAREN)) {
+        EXPECT(args_list, bc_func_args_rule);
+        if (EXPECT_TK(rparen, BC_RPAREN)) {
+            EXPECT(ret_type, bc_type_annotation_rule);
+            if (EXPECT(impl, bc_block_rule)) {
+                AST_ALLOC(Bc_FuncSig, func_sig){
+                    .kw_fn = kw_fn,
+                    .name = name,
+                    .params = args_list,
+                    .return_type = ret_type,
+                };
+                AST_ALLOC(Bc_FuncDecl, func_decl){
+                    .alias = NULL,
+                    .equals = NULL,
+                    .signature = func_sig,
+                    .target = NULL,
+                    .impl = impl,
+                };
+                return BC_PACKRAT_SUCCESS(func_decl);
+            }
+        }
+    }
 
     END_ALTERNATIVE()
 
     return BC_PACKRAT_FAILURE;
 }
+
+CREATE_RULE(bc_func_args_rule) {
+    START_ALTERNATIVE(args_list)
+    Bc_VarDecl *var_decl;
+    size_t arg_count = 0;
+    if (EXPECT(var_decl, bc_var_decl_rule)) {
+        arg_count = 1;
+        Bc_VarDecl *temp_var;
+        Bc_Token *temp_comma;
+        size_t reset_pos = bc_packrat_mark(p);
+        while (EXPECT_TK(temp_comma, BC_COMMA) &&
+               EXPECT(temp_var, bc_var_decl_rule)) {
+            arg_count += 1;
+        }
+        bc_packrat_reset(p, reset_pos);
+
+        AST_ALLOC(Bc_VarDeclList, args_list){
+            .length = arg_count,
+            .params = bc_arena_alloc(p->arena, sizeof(Bc_VarDecl) * arg_count),
+        };
+        args_list->params[0] = *var_decl;
+        for (size_t i = 1; i < arg_count; i++) {
+            EXPECT_TK(temp_comma, BC_COMMA);
+            EXPECT(temp_var, bc_var_decl_rule);
+            args_list->params[i] = *temp_var;
+        }
+
+        return BC_PACKRAT_SUCCESS(args_list);
+    }
+    END_ALTERNATIVE()
+    return BC_PACKRAT_FAILURE;
+}
+
+CREATE_RULE(bc_var_decl_rule) {
+    START_ALTERNATIVE(var_decl)
+    Bc_Token *name;
+    Bc_TypeAnnotation *type_annotation;
+    if (EXPECT_TK(name, BC_NAME) &&
+        EXPECT(type_annotation, bc_type_annotation_rule)) {
+        AST_ALLOC(Bc_VarDecl, var_decl){
+            .name = name,
+            .type = type_annotation,
+        };
+        return BC_PACKRAT_SUCCESS(var_decl);
+    }
+    END_ALTERNATIVE()
+    return BC_PACKRAT_FAILURE;
+}
+
+CREATE_RULE(bc_block_rule) { return BC_PACKRAT_FAILURE; }
