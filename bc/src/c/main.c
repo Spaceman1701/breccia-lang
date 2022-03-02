@@ -66,7 +66,7 @@ int main(int argc, const char **argv) {
 
     Bc_Decl *decl = bc_expect_rule(bc_decl_rule, &parser);
     if (decl) {
-        printf("found decl!\n");
+        printf("found decl! %d\n", decl->kind);
     }
 
     Bc_Cursor root_cursor = {
