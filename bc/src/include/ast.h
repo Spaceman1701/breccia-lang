@@ -177,6 +177,11 @@ struct Bc_VarDecl {
     Bc_TypeAnnotation *type;
 };
 
+struct Bc_ImplDecl {
+    Bc_Ident *target;
+    Bc_Token *lcurly;
+};
+
 struct Bc_ReturnStmt {
     Bc_Token *kw_return;
     Bc_Expr *expr;
@@ -188,12 +193,12 @@ struct Bc_AssignmentStmt {
     Bc_Token *semi;
 };
 
-struct ExprStmt {
+struct Bc_ExprStmt {
     Bc_Expr *expr;
     Bc_Token *semi;
 };
 
-struct IfStmt {
+struct Bc_IfStmt {
     Bc_Token *kw_if;
     Bc_IfStmtBranch *main_branch;
     Bc_IfStmtBranchList *elif_branches;

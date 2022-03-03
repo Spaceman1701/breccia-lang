@@ -24,7 +24,10 @@ typedef enum {
     Bc_CursorKind_FunctionSignature,
     Bc_CursorKind_StructField,
     Bc_CursorKind_Assignable,
-    Bc_CursorKind_Name
+    Bc_CursorKind_Name,
+    Bc_CursorKind_Operator,
+    Bc_CursorKind_Block,
+
 } Bc_CursorKind;
 
 typedef enum {

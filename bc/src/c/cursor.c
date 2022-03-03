@@ -4,6 +4,11 @@
 
 #include "ast.h"
 
+#define VISIT_AND_RET(parent, child, visitor)                                  \
+    if (!perform_visit(parent, child, visitor)) {                              \
+        return;                                                                \
+    }
+
 bool perform_visit(Bc_Cursor parent, Bc_Cursor child,
                    Bc_CursorVisitor visitor) {
     Bc_CursorVisitResult result = visitor(parent, child);
@@ -27,6 +32,7 @@ void visit_expr(Bc_Cursor expr_cursor, Bc_CursorVisitor visitor) {
             .data = expr->binary,
             .kind = Bc_CursorKind_BinaryOperation,
         };
+        perform_visit(expr_cursor, child_cursor, visitor);
         break;
     }
     case BC_EXPR_KIND_FUNC_CALL:
@@ -34,6 +40,7 @@ void visit_expr(Bc_Cursor expr_cursor, Bc_CursorVisitor visitor) {
             .data = expr->function_call,
             .kind = Bc_CursorKind_FunctionCall,
         };
+        perform_visit(expr_cursor, child_cursor, visitor);
         break;
     }
 
@@ -106,6 +113,233 @@ void visit_type_annotation(Bc_Cursor type_annotation_cursor,
     perform_visit(type_annotation_cursor, child_cursor, visitor);
 }
 
+void visit_stmt(Bc_Cursor type_annotation_cursor, Bc_CursorVisitor visitor) {
+    const Bc_Stmt *stmt = type_annotation_cursor.data;
+    Bc_Cursor child_curosr;
+    switch (stmt->kind) {
+    case BC_STMT_KIND_ASSIGNMENT:
+        /* code */
+        break;
+
+    case BC_STMT_KIND_EXPR:
+        break;
+
+    case BC_STMT_KIND_IF:
+        break;
+
+    case BC_STMT_KIND_RETURN:
+        break;
+    }
+}
+
+void visit_unary_operation(Bc_Cursor unary_op, Bc_CursorVisitor visitor) {
+    const Bc_UnaryOpExpr *unary = unary_op.data;
+    Bc_Cursor child_cursor = {
+        .data = unary->operator,
+        .kind = Bc_CursorKind_Operator,
+    };
+    if (!perform_visit(unary_op, child_cursor, visitor)) {
+        return;
+    }
+
+    child_cursor = (Bc_Cursor){
+        .data = unary->expr,
+        .kind = Bc_CursorKind_Expr,
+    };
+    perform_visit(unary_op, child_cursor, visitor);
+}
+
+void visit_binary_operation(Bc_Cursor binary_op_cursor,
+                            Bc_CursorVisitor visitor) {
+    const Bc_BinaryOpExpr *binary_op = binary_op_cursor.data;
+    Bc_Cursor child_cursor = {
+        .data = binary_op->operator,
+        .kind = Bc_CursorKind_Operator,
+    };
+    if (!perform_visit(binary_op_cursor, child_cursor, visitor)) {
+        return;
+    }
+    child_cursor = (Bc_Cursor){
+        .data = binary_op->left,
+        .kind = Bc_CursorKind_Expr,
+    };
+    if (!perform_visit(binary_op_cursor, child_cursor, visitor)) {
+        return;
+    }
+    child_cursor = (Bc_Cursor){
+        .data = binary_op->right,
+        .kind = Bc_CursorKind_Expr,
+    };
+    perform_visit(binary_op_cursor, child_cursor, visitor);
+}
+
+void visit_member_accessor(Bc_Cursor member_accessor_cursor,
+                           Bc_CursorVisitor visitor) {
+    const Bc_MemberAccessExpr *member_accessor = member_accessor_cursor.data;
+    Bc_Cursor child_cursor = {
+        .data = member_accessor->expr,
+        .kind = Bc_CursorKind_Expr,
+    };
+    if (!perform_visit(member_accessor_cursor, child_cursor, visitor)) {
+        return;
+    }
+
+    child_cursor = (Bc_Cursor){
+        .data = member_accessor->member_name,
+        .kind = Bc_CursorKind_Name,
+    };
+    perform_visit(member_accessor_cursor, child_cursor, visitor);
+}
+
+void visit_function_call(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    const Bc_FuncCallExpr *func_call = cursor.data;
+    Bc_Cursor child_cursor = {
+        .data = func_call->function,
+        .kind = Bc_CursorKind_Expr,
+    };
+    if (!perform_visit(cursor, child_cursor, visitor)) {
+        return;
+    }
+
+    for (size_t i = 0; i < func_call->args->length; i++) {
+        child_cursor = (Bc_Cursor){
+            .data = &func_call->args->exprs[i],
+            .kind = Bc_CursorKind_Expr,
+        };
+        if (!perform_visit(cursor, child_cursor, visitor)) {
+            return;
+        }
+    }
+}
+
+void visit_interface_decl(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    const Bc_InterfaceDecl *decl = cursor.data;
+    Bc_Cursor child = {
+        .data = decl->name,
+        .kind = Bc_CursorKind_Name,
+    };
+
+    VISIT_AND_RET(cursor, child, visitor);
+
+    for (size_t i = 0; i < decl->functions->length; i++) {
+        child = (Bc_Cursor){
+            .data = &decl->functions->functions[i],
+            .kind = Bc_CursorKind_FuncDecl,
+        };
+        VISIT_AND_RET(cursor, child, visitor);
+    }
+}
+
+void visit_impl_decl(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    const Bc_ImplDecl *decl = cursor.data;
+    log_error("visit impl decl not yet implemented");
+}
+
+void visit_function_decl(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    const Bc_FuncDecl *decl = cursor.data;
+    Bc_Cursor child = (Bc_Cursor){
+        .data = decl->signature,
+        .kind = Bc_CursorKind_FunctionSignature,
+    };
+    VISIT_AND_RET(cursor, child, visitor);
+
+    child = (Bc_Cursor){
+        .data = decl->impl,
+        .kind = Bc_CursorKind_Block,
+    };
+    VISIT_AND_RET(cursor, child, visitor);
+}
+
+void visit_var_decl(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    const Bc_VarDecl *decl = cursor.data;
+    Bc_Cursor child = {
+        .data = decl->name,
+        .kind = Bc_CursorKind_Name,
+    };
+    VISIT_AND_RET(cursor, child, visitor);
+    child = (Bc_Cursor){
+        .data = decl->type,
+        .kind = Bc_CursorKind_TypeAnnotation,
+    };
+    VISIT_AND_RET(cursor, child, visitor);
+}
+
+void visit_return_stmt(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    const Bc_ReturnStmt *stmt = cursor.data;
+    Bc_Cursor child = {
+        .data = stmt->expr,
+        .kind = Bc_CursorKind_Expr,
+    };
+    VISIT_AND_RET(cursor, child, visitor);
+}
+
+void visit_expr_stmt(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    const Bc_ExprStmt *stmt = cursor.data;
+    Bc_Cursor child = {
+        .data = stmt->expr,
+        .kind = Bc_CursorKind_Expr,
+    };
+    VISIT_AND_RET(cursor, child, visitor);
+}
+
+void visit_assignment_stmt(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    const Bc_AssignmentStmt *stmt = cursor.data;
+    Bc_Cursor child = {
+        .data = stmt->assignable,
+        .kind = Bc_CursorKind_Assignable,
+    };
+    VISIT_AND_RET(cursor, child, visitor);
+
+    child = (Bc_Cursor){
+        .data = stmt->expr,
+        .kind = Bc_CursorKind_Expr,
+    };
+    VISIT_AND_RET(cursor, child, visitor);
+}
+
+void visit_if_stmt(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    log_error("visit if statement is not implemented");
+}
+
+void visit_function_signature(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    const Bc_FuncSig *sig = cursor.data;
+    Bc_Cursor child = {
+        .data = sig->name,
+        .kind = Bc_CursorKind_Name,
+    };
+    VISIT_AND_RET(cursor, child, visitor);
+
+    for (size_t i = 0; i < sig->params->length; i++) {
+        child = (Bc_Cursor){
+            .data = &sig->params->params[i],
+            .kind = Bc_CursorKind_VarDecl,
+        };
+        VISIT_AND_RET(cursor, child, visitor);
+    }
+
+    child = (Bc_Cursor){
+        .data = sig->return_type,
+        .kind = Bc_CursorKind_TypeAnnotation,
+    };
+    VISIT_AND_RET(cursor, child, visitor);
+}
+
+void visit_assignable(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    log_error("assignable visit not implemented");
+}
+
+void visit_block(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    const Bc_Block *block = cursor.data;
+
+    for (size_t i = 0; i < block->length; i++) {
+        Bc_Cursor child = {
+            .data = &block->statements[i],
+            .kind = Bc_CursorKind_Stmt,
+        };
+        VISIT_AND_RET(cursor, child, visitor);
+    }
+}
+
 #define dispatch(func)                                                         \
     func(cursor, visitor);                                                     \
     break;
@@ -118,50 +352,46 @@ void bc_cursor_visit_children(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
     case Bc_CursorKind_Expr:
         dispatch(visit_expr);
     case Bc_CursorKind_Stmt:
-        break;
+        dispatch(visit_stmt);
     case Bc_CursorKind_Decl:
         dispatch(visit_decl);
-    case Bc_CursorKind_IntegerLiteral:
-        break;
-    case Bc_CursorKind_RealLiteral:
-        break;
-    case Bc_CursorKind_Ident:
-        break;
     case Bc_CursorKind_UnaryOperation:
-        break;
+        dispatch(visit_unary_operation);
     case Bc_CursorKind_BinaryOperation:
-        break;
+        dispatch(visit_binary_operation);
     case Bc_CursorKind_MemberAccessor:
-        break;
+        dispatch(visit_member_accessor);
     case Bc_CursorKind_FunctionCall:
-        break;
+        dispatch(visit_function_call);
     case Bc_CursorKind_StructDecl:
         dispatch(visit_struct_decl);
     case Bc_CursorKind_InterfaceDecl:
-        break;
+        dispatch(visit_interface_decl);
     case Bc_CursorKind_ImplDecl:
-        break;
+        dispatch(visit_impl_decl);
     case Bc_CursorKind_FuncDecl:
-        break;
+        dispatch(visit_function_decl);
     case Bc_CursorKind_VarDecl:
-        break;
+        dispatch(visit_var_decl);
     case Bc_CursorKind_ReturnStmt:
-        break;
+        dispatch(visit_return_stmt);
     case Bc_CursorKind_ExprStmt:
-        break;
+        dispatch(visit_expr_stmt);
     case Bc_CursorKind_AssignmentStmt:
-        break;
+        dispatch(visit_assignment_stmt);
     case Bc_CursorKind_IfStmt:
-        break;
+        dispatch(visit_if_stmt);
     case Bc_CursorKind_TypeAnnotation:
         dispatch(visit_type_annotation);
     case Bc_CursorKind_FunctionSignature:
-        break;
+        dispatch(visit_function_signature);
     case Bc_CursorKind_StructField:
         dispatch(visit_struct_field);
     case Bc_CursorKind_Assignable:
-        break;
-    case Bc_CursorKind_Name:
+        dispatch(visit_assignable);
+    case Bc_CursorKind_Block:
+        dispatch(visit_block);
+    default:
         break;
     }
 }
