@@ -63,8 +63,8 @@ IfStatement
     = 'if' Expr '{' Block '}' ('elif' Expr '{' Block '}')* ('else' '{' Block '}')?;
 
 Assignable
-    = Ident
-    | Expr '.' Name
+    = 
+    | Expr
     | 'let' VarDecl
     ;
 

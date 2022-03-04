@@ -224,7 +224,6 @@ struct Bc_Block {
 };
 
 struct Bc_Assignable {
-    Bc_Ident *ident;
     Bc_Expr *expr;
     Bc_Token *kw_let;
     Bc_VarDecl *var_decl;

@@ -214,5 +214,3 @@ CREATE_RULE(bc_block_rule) {
 
     return BC_PACKRAT_FAILURE;
 }
-
-CREATE_RULE(bc_stmt_rule) { return BC_PACKRAT_FAILURE; }

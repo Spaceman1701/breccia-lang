@@ -22,6 +22,7 @@ CREATE_RULE(bc_var_decl_rule);
 CREATE_RULE(bc_func_args_rule);
 
 CREATE_RULE(bc_stmt_rule);
+CREATE_RULE(bc_assignable_rule);
 
 bool expect_helper(void **out, PackratRuleFunc func, Bc_PackratParser *p);
 bool expect_token_helper(Bc_Token **out, Bc_TokenType type,
