@@ -83,6 +83,9 @@ Bc_AstNode bc_expect_rule(PackratRuleFunc rule, Bc_PackratParser *p) {
         .function = rule,
         .location = p->ts->cursor,
     };
+    if (pos >= p->ts->lexer.token_list.length) {
+        return NULL; // out of bounds
+    }
     Bc_PackratRuleResult *cached_value = bc_packrat_cache_get(&p->cache, key);
     if (!cached_value) {
         log_trace("no previous cache entry found %p %zu", rule, p->ts->cursor);

@@ -4,6 +4,8 @@
 
 #define FORWARD_DECLARE(name) typedef struct name name;
 
+FORWARD_DECLARE(Bc_Module);
+
 typedef enum Bc_ExprKind Bc_ExprKind;
 FORWARD_DECLARE(Bc_Expr)
 
@@ -44,7 +46,10 @@ FORWARD_DECLARE(Bc_MemberAccessExpr)
 FORWARD_DECLARE(Bc_FuncCallExpr)
 FORWARD_DECLARE(Bc_ExprList)
 
-typedef enum { Bc_AstExpr, Bc_AstEnd } Bc_CachableAstNodeKinds;
+struct Bc_Module {
+    Bc_Decl *decls;
+    size_t length;
+};
 
 enum Bc_DeclKind {
     BC_DECL_KIND_STRUCT,

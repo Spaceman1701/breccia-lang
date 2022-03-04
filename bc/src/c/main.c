@@ -38,7 +38,7 @@ int main(int argc, const char **argv) {
 #ifdef LOG_LEVEL
     log_set_level(LOG_LEVEL);
 #endif
-    log_set_level(LOG_ERROR);
+    log_set_level(LOG_TRACE);
     if (argc < 2) {
         fprintf(stderr, "error: no input files\n");
         return -1;
@@ -64,17 +64,8 @@ int main(int argc, const char **argv) {
     bc_packrat_cache_init(&parser.cache, ts.lexer.token_list.length);
     parser.arena = bc_arena_new(1024 * 1024);
 
-    Bc_Decl *decl = bc_expect_rule(bc_decl_rule, &parser);
-    if (decl) {
-        printf("found decl! %d\n", decl->kind);
-    }
-
-    Bc_Cursor root_cursor = {
-        .data = decl,
-        .kind = Bc_CursorKind_Decl,
-    };
-
-    bc_cursor_visit_children(root_cursor, print_structs);
+    Bc_Module *module = bc_expect_rule(bc_module_rule, &parser);
+    printf("found %zu modules in file %s\n", module->length, input_file.path);
 
     bc_arena_free(parser.arena);
     bc_list_free_data(&ts.lexer.token_list);

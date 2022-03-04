@@ -42,6 +42,7 @@ void bc_packrat_position_entry_free_owned(Bc_PackratPositionEntry *entry) {
 
 void bc_packrat_cache_init_position_if_needed(Bc_PackratCache *cache,
                                               size_t position) {
+    log_trace("initing cache position: %zu\n", position);
     if (!cache->positions[position].allocated) {
         bc_packrat_position_entry_init(&cache->positions[position]);
     }
