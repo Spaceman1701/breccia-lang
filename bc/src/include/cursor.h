@@ -1,6 +1,7 @@
 #pragma once
 
 typedef enum {
+    Bc_CursorKind_Module,
     Bc_CursorKind_Expr,
     Bc_CursorKind_Stmt,
     Bc_CursorKind_Decl,

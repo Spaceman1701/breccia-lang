@@ -38,7 +38,7 @@ int main(int argc, const char **argv) {
 #ifdef LOG_LEVEL
     log_set_level(LOG_LEVEL);
 #endif
-    log_set_level(LOG_TRACE);
+    log_set_level(LOG_INFO);
     if (argc < 2) {
         fprintf(stderr, "error: no input files\n");
         return -1;
@@ -66,6 +66,13 @@ int main(int argc, const char **argv) {
 
     Bc_Module *module = bc_expect_rule(bc_module_rule, &parser);
     printf("found %zu modules in file %s\n", module->length, input_file.path);
+
+    Bc_Cursor module_cursor = {
+        .data = module,
+        .kind = Bc_CursorKind_Module,
+    };
+
+    bc_cursor_visit_children(module_cursor, print_structs);
 
     bc_arena_free(parser.arena);
     bc_list_free_data(&ts.lexer.token_list);

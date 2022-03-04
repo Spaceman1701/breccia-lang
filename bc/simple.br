@@ -1,3 +1,7 @@
+type MyStruct struct {
+    foobar String;
+}
+
 fn foobar() {
-    
+
 }

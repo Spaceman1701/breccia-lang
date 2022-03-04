@@ -23,6 +23,18 @@ bool perform_visit(Bc_Cursor parent, Bc_Cursor child,
     }
 }
 
+void visit_module(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
+    const Bc_Module *module = cursor.data;
+
+    for (size_t i = 0; i < module->length; i++) {
+        Bc_Cursor child = {
+            .data = &module->decls[i],
+            .kind = Bc_CursorKind_Decl,
+        };
+        VISIT_AND_RET(cursor, child, visitor);
+    }
+}
+
 void visit_expr(Bc_Cursor expr_cursor, Bc_CursorVisitor visitor) {
     const Bc_Expr *expr = (const Bc_Expr *)expr_cursor.data;
     Bc_Cursor child_cursor;
@@ -349,6 +361,8 @@ void bc_cursor_visit_children(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
         return;
     }
     switch (cursor.kind) {
+    case Bc_CursorKind_Module:
+        dispatch(visit_module);
     case Bc_CursorKind_Expr:
         dispatch(visit_expr);
     case Bc_CursorKind_Stmt:
