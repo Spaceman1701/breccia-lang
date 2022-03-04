@@ -107,7 +107,35 @@ CREATE_RULE(bc_type_annotation_rule) {
     return BC_PACKRAT_FAILURE;
 }
 
-CREATE_RULE(bc_ident_rule) { return BC_PACKRAT_FAILURE; }
+CREATE_RULE(bc_ident_rule) {
+    START_ALTERNATIVE(scoped_ident)
+    Bc_Ident *ident;
+    Bc_Token *op_scope;
+    Bc_Token *name;
+    if (EXPECT(ident, bc_ident_rule) && EXPECT_TK(op_scope, BC_OP_SCOPE) &&
+        EXPECT_TK(name, BC_NAME)) {
+        AST_ALLOC(Bc_Ident, ident){
+            .ident = ident,
+            .name = name,
+            .op_scope = op_scope,
+        };
+        return BC_PACKRAT_SUCCESS(ident);
+    }
+    END_ALTERNATIVE()
+
+    START_ALTERNATIVE(simple_ident)
+    Bc_Token *name;
+    if (EXPECT_TK(name, BC_NAME)) {
+        AST_ALLOC(Bc_Ident, ident){
+            .name = name,
+            .op_scope = NULL,
+            .ident = NULL,
+        };
+        return BC_PACKRAT_SUCCESS(ident);
+    }
+    END_ALTERNATIVE()
+    return BC_PACKRAT_FAILURE;
+}
 
 CREATE_RULE(bc_func_decl_rule) {
     START_ALTERNATIVE(function_impl)

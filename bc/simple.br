@@ -8,5 +8,5 @@ type MyOtherStruct struct {
 }
 
 fn foobar() {
-    let a Int = 0;
+    let a Int = * Foobar::foobar;
 }

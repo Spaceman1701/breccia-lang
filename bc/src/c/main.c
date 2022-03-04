@@ -53,7 +53,7 @@ int main(int argc, const char **argv) {
 #ifdef LOG_LEVEL
     log_set_level(LOG_LEVEL);
 #endif
-    log_set_level(LOG_INFO);
+    log_set_level(LOG_ERROR);
     if (argc < 2) {
         fprintf(stderr, "error: no input files\n");
         return -1;
@@ -73,7 +73,7 @@ int main(int argc, const char **argv) {
     ts.lexer = s;
     ts.cursor = 0;
 
-    // bc_lexer_print_all_tokens(&ts.lexer);
+    bc_lexer_print_all_tokens(&ts.lexer);
 
     Bc_PackratParser parser = {.ts = &ts};
     bc_packrat_cache_init(&parser.cache, ts.lexer.token_list.length);
