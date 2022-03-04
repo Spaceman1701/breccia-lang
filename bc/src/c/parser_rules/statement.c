@@ -87,3 +87,22 @@ CREATE_RULE(bc_assignable_rule) {
     END_ALTERNATIVE()
     return BC_PACKRAT_FAILURE;
 }
+
+CREATE_RULE(bc_block_rule) {
+    START_ALTERNATIVE(block);
+    Bc_Token *lcurly;
+    Bc_Token *rcurly;
+    if (EXPECT_TK(lcurly, BC_LCURLY)) {
+        AST_ALLOC(Bc_Block, block){
+            .statements = NULL, .length = 0, .lcurly = lcurly, .rcurly = NULL};
+
+        EXPECT_LIST(Bc_Stmt, bc_stmt_rule, block->statements, block->length);
+        if (EXPECT_TK(rcurly, BC_RCURLY)) {
+            return BC_PACKRAT_SUCCESS(block);
+        }
+    }
+
+    END_ALTERNATIVE()
+
+    return BC_PACKRAT_FAILURE;
+}

@@ -152,6 +152,10 @@ CREATE_RULE(bc_func_args_rule) {
     START_ALTERNATIVE(args_list)
     Bc_VarDecl *var_decl;
     size_t arg_count = 0;
+    AST_ALLOC(Bc_VarDeclList, args_list){
+        .length = 0,
+        .params = NULL,
+    };
     if (EXPECT(var_decl, bc_var_decl_rule)) {
         arg_count = 1;
         Bc_VarDecl *temp_var;
@@ -163,19 +167,18 @@ CREATE_RULE(bc_func_args_rule) {
         }
         bc_packrat_reset(p, reset_pos);
 
-        AST_ALLOC(Bc_VarDeclList, args_list){
-            .length = arg_count,
-            .params = bc_arena_alloc(p->arena, sizeof(Bc_VarDecl) * arg_count),
-        };
+        args_list->length = arg_count;
+        args_list->params =
+            bc_arena_alloc(p->arena, sizeof(Bc_VarDecl) * arg_count);
+
         args_list->params[0] = *var_decl;
         for (size_t i = 1; i < arg_count; i++) {
             EXPECT_TK(temp_comma, BC_COMMA);
             EXPECT(temp_var, bc_var_decl_rule);
             args_list->params[i] = *temp_var;
         }
-
-        return BC_PACKRAT_SUCCESS(args_list);
     }
+    return BC_PACKRAT_SUCCESS(args_list);
     END_ALTERNATIVE()
     return BC_PACKRAT_FAILURE;
 }
@@ -193,24 +196,5 @@ CREATE_RULE(bc_var_decl_rule) {
         return BC_PACKRAT_SUCCESS(var_decl);
     }
     END_ALTERNATIVE()
-    return BC_PACKRAT_FAILURE;
-}
-
-CREATE_RULE(bc_block_rule) {
-    START_ALTERNATIVE(block);
-    Bc_Token *lcurly;
-    Bc_Token *rcurly;
-    if (EXPECT_TK(lcurly, BC_LCURLY)) {
-        AST_ALLOC(Bc_Block, block){
-            .statements = NULL, .length = 0, .lcurly = lcurly, .rcurly = NULL};
-
-        EXPECT_LIST(Bc_Stmt, bc_stmt_rule, block->statements, block->length);
-        if (EXPECT_TK(rcurly, BC_RCURLY)) {
-            return BC_PACKRAT_SUCCESS(block);
-        }
-    }
-
-    END_ALTERNATIVE()
-
     return BC_PACKRAT_FAILURE;
 }

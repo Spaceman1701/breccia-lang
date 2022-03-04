@@ -2,6 +2,11 @@ type MyStruct struct {
     foobar String;
 }
 
-fn foobar() {
+type MyOtherStruct struct {
+    someField i64;
+    someOtherField u32;
+}
 
+fn foobar() {
+    let a Int = 0;
 }

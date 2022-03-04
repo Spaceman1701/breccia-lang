@@ -68,9 +68,16 @@ void visit_decl(Bc_Cursor decl_cursor, Bc_CursorVisitor visitor) {
             .data = decl->struct_decl,
             .kind = Bc_CursorKind_StructDecl,
         };
-        perform_visit(decl_cursor, child_cursor, visitor);
+        break;
+    case BC_DECL_KIND_FUNC:
+        child_cursor = (Bc_Cursor){
+            .data = decl->func_decl,
+            .kind = Bc_CursorKind_FuncDecl,
+        };
         break;
     }
+
+    perform_visit(decl_cursor, child_cursor, visitor);
 }
 
 void visit_struct_decl(Bc_Cursor struct_decl_cursor, Bc_CursorVisitor visitor) {

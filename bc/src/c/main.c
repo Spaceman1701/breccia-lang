@@ -33,6 +33,21 @@ Bc_CursorVisitResult print_structs(Bc_Cursor parent, Bc_Cursor node) {
     return Bc_CursorVisitResult_Recurse;
 }
 
+Bc_CursorVisitResult print_stmts(Bc_Cursor parent, Bc_Cursor node) {
+    if (node.kind == Bc_CursorKind_FuncDecl) {
+        printf("found function decl\n");
+    }
+    if (node.kind == Bc_CursorKind_Block) {
+        printf("found block\n");
+    }
+    if (node.kind == Bc_CursorKind_Stmt) {
+        const Bc_Stmt *stmt = node.data;
+        printf("stmt kind: %d\n", stmt->kind);
+        return Bc_CursorVisitResult_Continue;
+    }
+    return Bc_CursorVisitResult_Recurse;
+}
+
 int main(int argc, const char **argv) {
 
 #ifdef LOG_LEVEL
@@ -58,14 +73,14 @@ int main(int argc, const char **argv) {
     ts.lexer = s;
     ts.cursor = 0;
 
-    bc_lexer_print_all_tokens(&ts.lexer);
+    // bc_lexer_print_all_tokens(&ts.lexer);
 
     Bc_PackratParser parser = {.ts = &ts};
     bc_packrat_cache_init(&parser.cache, ts.lexer.token_list.length);
     parser.arena = bc_arena_new(1024 * 1024);
 
     Bc_Module *module = bc_expect_rule(bc_module_rule, &parser);
-    printf("found %zu modules in file %s\n", module->length, input_file.path);
+    printf("found %zu decls in file %s\n", module->length, input_file.path);
 
     Bc_Cursor module_cursor = {
         .data = module,
@@ -73,6 +88,8 @@ int main(int argc, const char **argv) {
     };
 
     bc_cursor_visit_children(module_cursor, print_structs);
+    printf("\n\n");
+    bc_cursor_visit_children(module_cursor, print_stmts);
 
     bc_arena_free(parser.arena);
     bc_list_free_data(&ts.lexer.token_list);
