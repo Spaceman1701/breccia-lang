@@ -42,27 +42,27 @@ void visit_expr(Bc_Cursor expr_cursor, Bc_CursorVisitor visitor) {
     case BC_EXPR_KIND_BINARY_OP: {
         child_cursor = (Bc_Cursor){
             .data = expr->binary,
-            .kind = Bc_CursorKind_BinaryOperation,
+            .kind = Bc_CursorKind_BinaryOpExpr,
         };
         break;
     }
     case BC_EXPR_KIND_FUNC_CALL:
         child_cursor = (Bc_Cursor){
             .data = expr->function_call,
-            .kind = Bc_CursorKind_FunctionCall,
+            .kind = Bc_CursorKind_FuncCallExpr,
         };
         break;
 
     case BC_EXPR_KIND_INTEGER_LIT:
         child_cursor = (Bc_Cursor){
             .data = expr->integer_literal,
-            .kind = Bc_CursorKind_IntegerLiteral,
+            .kind = Bc_CursorKind_IntegerExpr,
         };
         break;
     case BC_EXPR_KIND_REAL_LIT:
         child_cursor = (Bc_Cursor){
             .data = expr->real_literal,
-            .kind = Bc_CursorKind_RealLiteral,
+            .kind = Bc_CursorKind_RealExpr,
         };
         break;
     case BC_EXPR_KIND_VAR:
@@ -74,13 +74,13 @@ void visit_expr(Bc_Cursor expr_cursor, Bc_CursorVisitor visitor) {
     case BC_EXPR_KIND_UNARY_OP:
         child_cursor = (Bc_Cursor){
             .data = expr->unary,
-            .kind = Bc_CursorKind_UnaryOperation,
+            .kind = Bc_CursorKind_UnaryOpExpr,
         };
         break;
     case BC_EXPR_KIND_MEMBER_ACCESSOR:
         child_cursor = (Bc_Cursor){
             .data = expr->memeber_accessor,
-            .kind = Bc_CursorKind_MemberAccessor,
+            .kind = Bc_CursorKind_MemberAccessExpr,
         };
         break;
     case BC_EXPR_KIND_PARENS:
@@ -330,7 +330,7 @@ void visit_function_decl(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
     const Bc_FuncDecl *decl = cursor.data;
     Bc_Cursor child = (Bc_Cursor){
         .data = decl->signature,
-        .kind = Bc_CursorKind_FunctionSignature,
+        .kind = Bc_CursorKind_FuncSig,
     };
     VISIT_AND_RET(cursor, child, visitor);
 
@@ -462,13 +462,13 @@ void bc_cursor_visit_children(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
         dispatch(visit_stmt);
     case Bc_CursorKind_Decl:
         dispatch(visit_decl);
-    case Bc_CursorKind_UnaryOperation:
+    case Bc_CursorKind_UnaryOpExpr:
         dispatch(visit_unary_operation);
-    case Bc_CursorKind_BinaryOperation:
+    case Bc_CursorKind_BinaryOpExpr:
         dispatch(visit_binary_operation);
-    case Bc_CursorKind_MemberAccessor:
+    case Bc_CursorKind_MemberAccessExpr:
         dispatch(visit_member_accessor);
-    case Bc_CursorKind_FunctionCall:
+    case Bc_CursorKind_FuncCallExpr:
         dispatch(visit_function_call);
     case Bc_CursorKind_StructDecl:
         dispatch(visit_struct_decl);
@@ -490,7 +490,7 @@ void bc_cursor_visit_children(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
         dispatch(visit_if_stmt);
     case Bc_CursorKind_TypeAnnotation:
         dispatch(visit_type_annotation);
-    case Bc_CursorKind_FunctionSignature:
+    case Bc_CursorKind_FuncSig:
         dispatch(visit_function_signature);
     case Bc_CursorKind_StructField:
         dispatch(visit_struct_field);
@@ -500,5 +500,32 @@ void bc_cursor_visit_children(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
         dispatch(visit_block);
     default:
         break;
+    }
+}
+
+#define cursor_getter(type, name)                                              \
+    Bc_##type *name(Bc_Cursor c) {                                             \
+        if (c.kind == Bc_CursorKind_##type) {                                  \
+            return c.data;                                                     \
+        } else {                                                               \
+            return NULL;                                                       \
+        }                                                                      \
+    }
+
+#include "cursor_getter_templates.h"
+#undef cursor_getter
+
+Bc_Token *bc_cursor_Name(Bc_Cursor c) {
+    if (c.kind == Bc_CursorKind_Name) {
+        return c.data;
+    } else {
+        return NULL;
+    }
+}
+Bc_Token *bc_cursor_Operator(Bc_Cursor c) {
+    if (c.kind == Bc_CursorKind_Operator) {
+        return c.data;
+    } else {
+        return NULL;
     }
 }

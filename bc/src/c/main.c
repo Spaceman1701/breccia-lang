@@ -15,13 +15,13 @@ Bc_CursorVisitResult print_structs(Bc_Cursor parent, Bc_Cursor node) {
     char text_buf[256];
     if (parent.kind == Bc_CursorKind_StructDecl) {
         if (node.kind == Bc_CursorKind_Name) {
-            const Bc_Token *name = node.data;
+            Bc_Token *name = bc_cursor_Name(node);
             bc_token_copy_text(name, text_buf);
             printf("struct %s\n", text_buf);
             return Bc_CursorVisitResult_Continue;
         }
         if (node.kind == Bc_CursorKind_StructField) {
-            const Bc_StructField *field = node.data;
+            Bc_StructField *field = bc_cursor_StructField(node);
             printf("  field ");
             bc_token_copy_text(field->name, text_buf);
             printf("%s ", text_buf);

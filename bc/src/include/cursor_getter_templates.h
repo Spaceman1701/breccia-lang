@@ -1,0 +1,27 @@
+#ifdef cursor_getter
+cursor_getter(Module, bc_cursor_Module);
+cursor_getter(Expr, bc_cursor_Expr);
+cursor_getter(Stmt, bc_cursor_Stmt);
+cursor_getter(Decl, bc_cursor_Decl);
+cursor_getter(IntegerExpr, bc_cursor_IntegerExpr);
+cursor_getter(RealExpr, bc_cursor_RealExpr);
+cursor_getter(Ident, bc_cursor_Ident);
+cursor_getter(UnaryOpExpr, bc_cursor_UnaryOpExpr);
+cursor_getter(BinaryOpExpr, bc_cursor_BinaryOpExpr);
+cursor_getter(MemberAccessExpr, bc_cursor_MemberAccessExpr);
+cursor_getter(FuncCallExpr, bc_cursor_FuncCallExpr);
+cursor_getter(StructDecl, bc_cursor_StructDecl);
+cursor_getter(InterfaceDecl, bc_cursor_InterfaceDecl);
+cursor_getter(ImplDecl, bc_cursor_ImplDecl);
+cursor_getter(FuncDecl, bc_cursor_FuncDecl);
+cursor_getter(VarDecl, bc_cursor_VarDecl);
+cursor_getter(ReturnStmt, bc_cursor_ReturnStmt);
+cursor_getter(ExprStmt, bc_cursor_ExprStmt);
+cursor_getter(AssignmentStmt, bc_cursor_AssignmentStmt);
+cursor_getter(IfStmt, bc_cursor_IfStmt);
+cursor_getter(TypeAnnotation, bc_cursor_TypeAnnotation);
+cursor_getter(FuncSig, bc_cursor_FunctionSignature);
+cursor_getter(StructField, bc_cursor_StructField);
+cursor_getter(Assignable, bc_cursor_Assignable);
+cursor_getter(Block, bc_cursor_Block);
+#endif
