@@ -16,7 +16,7 @@ bool perform_visit(Bc_Cursor parent, Bc_Cursor child,
     case Bc_CursorVisitResult_Recurse:
         bc_cursor_visit_children(child, visitor);
         return true;
-    case Bc_CursorVisitResult_Breakm:
+    case Bc_CursorVisitResult_Break:
         return false;
     case Bc_CursorVisitResult_Continue:
         return true;

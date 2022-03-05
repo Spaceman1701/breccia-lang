@@ -37,13 +37,15 @@ typedef enum {
 typedef enum {
     Bc_CursorVisitResult_Recurse,
     Bc_CursorVisitResult_Continue,
-    Bc_CursorVisitResult_Breakm,
+    Bc_CursorVisitResult_Break,
 } Bc_CursorVisitResult;
 
 typedef struct {
     Bc_CursorKind kind;
     void *data;
 } Bc_Cursor;
+
+typedef void *Bc_CursorData;
 
 typedef Bc_CursorVisitResult (*Bc_CursorVisitor)(Bc_Cursor parent,
                                                  Bc_Cursor cursor);
