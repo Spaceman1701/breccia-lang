@@ -108,6 +108,21 @@ CREATE_RULE(bc_expr_rule) {
     }
     END_ALTERNATIVE()
 
+    START_ALTERNATIVE(parens_expr)
+    Bc_Token *lparen;
+    Bc_Expr *expr;
+    Bc_Token *rparen;
+    if (EXPECT_TK(lparen, BC_LPAREN) && EXPECT(expr, bc_expr_rule) &&
+        EXPECT_TK(rparen, BC_RPAREN)) {
+
+        AST_ALLOC(Bc_Expr, outer){
+            .kind = BC_EXPR_KIND_PARENS,
+            .parens_expr = expr,
+        };
+        return BC_PACKRAT_SUCCESS(outer);
+    }
+    END_ALTERNATIVE()
+
     START_ALTERNATIVE(integer_literal)
     Bc_IntegerExpr *integer;
     if (EXPECT(integer, bc_integer_expr_rule)) {

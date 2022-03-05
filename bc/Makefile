@@ -38,7 +38,7 @@ DEPS = $(OBJECTS:.o=.d)
 
 RE2C_FLAGS = -W -Werror -i --utf8 --case-ranges
 
-ERR_FLAGS = -Werror=incompatible-pointer-types -Werror=int-conversion -Werror=return-type
+ERR_FLAGS = -Werror=incompatible-pointer-types -Werror=int-conversion -Werror=return-type -Werror=switch
 
 CFLAGS = -c -g -I$(GENERATED_INCLUDES_DIR) -I$(INCLUDE_DIR) -I$(LOG_C_INCLUDES) $(LOG_FLAGS) -Wall $(ERR_FLAGS) -MMD
 LDFLAGS = -g -O3

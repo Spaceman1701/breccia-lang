@@ -44,7 +44,6 @@ void visit_expr(Bc_Cursor expr_cursor, Bc_CursorVisitor visitor) {
             .data = expr->binary,
             .kind = Bc_CursorKind_BinaryOperation,
         };
-        perform_visit(expr_cursor, child_cursor, visitor);
         break;
     }
     case BC_EXPR_KIND_FUNC_CALL:
@@ -52,7 +51,43 @@ void visit_expr(Bc_Cursor expr_cursor, Bc_CursorVisitor visitor) {
             .data = expr->function_call,
             .kind = Bc_CursorKind_FunctionCall,
         };
-        perform_visit(expr_cursor, child_cursor, visitor);
+        break;
+
+    case BC_EXPR_KIND_INTEGER_LIT:
+        child_cursor = (Bc_Cursor){
+            .data = expr->integer_literal,
+            .kind = Bc_CursorKind_IntegerLiteral,
+        };
+        break;
+    case BC_EXPR_KIND_REAL_LIT:
+        child_cursor = (Bc_Cursor){
+            .data = expr->real_literal,
+            .kind = Bc_CursorKind_RealLiteral,
+        };
+        break;
+    case BC_EXPR_KIND_VAR:
+        child_cursor = (Bc_Cursor){
+            .data = expr->variable,
+            .kind = Bc_CursorKind_Ident,
+        };
+        break;
+    case BC_EXPR_KIND_UNARY_OP:
+        child_cursor = (Bc_Cursor){
+            .data = expr->unary,
+            .kind = Bc_CursorKind_UnaryOperation,
+        };
+        break;
+    case BC_EXPR_KIND_MEMBER_ACCESSOR:
+        child_cursor = (Bc_Cursor){
+            .data = expr->memeber_accessor,
+            .kind = Bc_CursorKind_MemberAccessor,
+        };
+        break;
+    case BC_EXPR_KIND_PARENS:
+        child_cursor = (Bc_Cursor){
+            .data = expr->parens_expr,
+            .kind = Bc_CursorKind_Expr,
+        };
         break;
     }
 
@@ -69,10 +104,21 @@ void visit_decl(Bc_Cursor decl_cursor, Bc_CursorVisitor visitor) {
             .kind = Bc_CursorKind_StructDecl,
         };
         break;
+    case BC_DECL_KIND_INTERFACE:
+        child_cursor = (Bc_Cursor){
+            .data = decl->iface_decl,
+            .kind = Bc_CursorKind_InterfaceDecl,
+        };
     case BC_DECL_KIND_FUNC:
         child_cursor = (Bc_Cursor){
             .data = decl->func_decl,
             .kind = Bc_CursorKind_FuncDecl,
+        };
+        break;
+    case BC_DECL_KIND_IMPL:
+        child_cursor = (Bc_Cursor){
+            .data = decl->impl_decl,
+            .kind = Bc_CursorKind_ImplDecl,
         };
         break;
     }
@@ -137,16 +183,30 @@ void visit_stmt(Bc_Cursor type_annotation_cursor, Bc_CursorVisitor visitor) {
     Bc_Cursor child_curosr;
     switch (stmt->kind) {
     case BC_STMT_KIND_ASSIGNMENT:
-        /* code */
+        child_curosr = (Bc_Cursor){
+            .data = stmt->assignment_stmt,
+            .kind = Bc_CursorKind_AssignmentStmt,
+        };
         break;
 
     case BC_STMT_KIND_EXPR:
+        child_curosr = (Bc_Cursor){
+            .data = stmt->expr_stmt,
+            .kind = Bc_CursorKind_ExprStmt,
+        };
         break;
-
     case BC_STMT_KIND_IF:
+        child_curosr = (Bc_Cursor){
+            .data = stmt->if_stmt,
+            .kind = Bc_CursorKind_IfStmt,
+        };
         break;
 
     case BC_STMT_KIND_RETURN:
+        child_curosr = (Bc_Cursor){
+            .data = stmt->return_stmt,
+            .kind = Bc_CursorKind_ReturnStmt,
+        };
         break;
     }
 }

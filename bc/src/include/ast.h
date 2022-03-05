@@ -78,6 +78,7 @@ enum Bc_ExprKind {
     BC_EXPR_KIND_BINARY_OP,
     BC_EXPR_KIND_MEMBER_ACCESSOR,
     BC_EXPR_KIND_FUNC_CALL,
+    BC_EXPR_KIND_PARENS,
 };
 
 struct Bc_Expr {
@@ -89,6 +90,7 @@ struct Bc_Expr {
         Bc_BinaryOpExpr *binary;
         Bc_MemberAccessExpr *memeber_accessor;
         Bc_FuncCallExpr *function_call;
+        Bc_Expr *parens_expr;
     };
 
     Bc_ExprKind kind;

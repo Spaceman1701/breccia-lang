@@ -73,6 +73,7 @@ Expr
     | BinaryOpExpr
     | MemberAccessExpr
     | FunctionCallExpr
+    | '(' Expr ')'
     | Integer
     | Real
     | Ident
