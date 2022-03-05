@@ -108,6 +108,40 @@ CREATE_RULE(bc_expr_rule) {
     }
     END_ALTERNATIVE()
 
+    START_ALTERNATIVE(func_call_expr)
+    Bc_Expr *func_expr;
+    Bc_ExprList *args;
+    if (EXPECT(func_expr, bc_expr_rule) &&
+        EXPECT(args, bc_func_call_args_rule)) {
+
+        AST_ALLOC(Bc_FuncCallExpr, func_call){
+            .args = args,
+            .function = func_expr,
+        };
+        AST_ALLOC(Bc_Expr, expr){
+            .function_call = func_call,
+            .kind = BC_EXPR_KIND_FUNC_CALL,
+        };
+        return BC_PACKRAT_SUCCESS(expr);
+    }
+    END_ALTERNATIVE()
+
+    START_ALTERNATIVE(member_access_expr);
+    Bc_Expr *parent;
+    Bc_Token *member_name;
+    if (EXPECT(parent, bc_expr_rule) && EXPECT_TK(member_name, BC_NAME)) {
+        AST_ALLOC(Bc_MemberAccessExpr, member_accessor){
+            .expr = parent,
+            .member_name = member_name,
+        };
+        AST_ALLOC(Bc_Expr, expr){
+            .memeber_accessor = member_accessor,
+            .kind = BC_EXPR_KIND_MEMBER_ACCESSOR,
+        };
+        return BC_PACKRAT_SUCCESS(expr);
+    }
+    END_ALTERNATIVE()
+
     START_ALTERNATIVE(parens_expr)
     Bc_Token *lparen;
     Bc_Expr *expr;
@@ -157,5 +191,46 @@ CREATE_RULE(bc_expr_rule) {
     }
     END_ALTERNATIVE()
 
+    return BC_PACKRAT_FAILURE;
+}
+
+CREATE_RULE(bc_func_call_args_rule) {
+    START_ALTERNATIVE(func_call_args)
+    Bc_Token *lparen;
+    Bc_Expr *first_arg;
+    Bc_Expr *temp_arg;
+    Bc_Token *rparen;
+
+    if (EXPECT_TK(lparen, BC_LPAREN)) {
+        AST_ALLOC(Bc_ExprList, args_list){
+            .exprs = NULL,
+            .length = 0,
+        };
+
+        if (EXPECT(first_arg, bc_expr_rule)) {
+            size_t pos = bc_packrat_mark(p);
+            Bc_Token *temp_comma;
+            args_list->length = 1;
+            while (EXPECT_TK(temp_comma, BC_COMMA) &&
+                   EXPECT(temp_arg, bc_expr_rule)) {
+                args_list->length += 1;
+            }
+            bc_packrat_reset(p, pos);
+            args_list->exprs =
+                bc_arena_alloc(p->arena, sizeof(Bc_Expr) * args_list->length);
+            args_list->exprs[0] = *first_arg;
+            for (size_t i = 1; i < args_list->length; i++) {
+                EXPECT_TK(temp_comma, BC_COMMA);
+                EXPECT(temp_arg, bc_expr_rule);
+                args_list->exprs[i] = *temp_arg;
+            }
+        }
+
+        if (EXPECT_TK(rparen, BC_RPAREN)) {
+            return BC_PACKRAT_SUCCESS(args_list);
+        }
+    }
+
+    END_ALTERNATIVE()
     return BC_PACKRAT_FAILURE;
 }

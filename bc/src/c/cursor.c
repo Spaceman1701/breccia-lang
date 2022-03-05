@@ -311,7 +311,19 @@ void visit_interface_decl(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
 
 void visit_impl_decl(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
     const Bc_ImplDecl *decl = cursor.data;
-    log_error("visit impl decl not yet implemented");
+    Bc_Cursor child = {
+        .data = decl->target,
+        .kind = Bc_CursorKind_ImplDecl,
+    };
+    VISIT_AND_RET(cursor, child, visitor);
+
+    for (size_t i = 0; i < decl->decls->length; i++) {
+        child = (Bc_Cursor){
+            .data = &decl->decls->decls[i],
+            .kind = Bc_CursorKind_Decl,
+        };
+        VISIT_AND_RET(cursor, child, visitor);
+    }
 }
 
 void visit_function_decl(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
@@ -404,7 +416,21 @@ void visit_function_signature(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
 }
 
 void visit_assignable(Bc_Cursor cursor, Bc_CursorVisitor visitor) {
-    log_error("assignable visit not implemented");
+    const Bc_Assignable *assignable = cursor.data;
+    Bc_Cursor child;
+    if (assignable->expr) {
+        child = (Bc_Cursor){
+            .data = assignable->expr,
+            .kind = Bc_CursorKind_Expr,
+        };
+    } else {
+        child = (Bc_Cursor){
+            .data = assignable->var_decl,
+            .kind = Bc_CursorKind_VarDecl,
+        };
+    }
+
+    perform_visit(cursor, child, visitor);
 }
 
 void visit_block(Bc_Cursor cursor, Bc_CursorVisitor visitor) {

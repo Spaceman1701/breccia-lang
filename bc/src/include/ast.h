@@ -4,7 +4,7 @@
 
 #define FORWARD_DECLARE(name) typedef struct name name;
 
-FORWARD_DECLARE(Bc_Module);
+FORWARD_DECLARE(Bc_DeclList);
 
 typedef enum Bc_ExprKind Bc_ExprKind;
 FORWARD_DECLARE(Bc_Expr)
@@ -46,10 +46,11 @@ FORWARD_DECLARE(Bc_MemberAccessExpr)
 FORWARD_DECLARE(Bc_FuncCallExpr)
 FORWARD_DECLARE(Bc_ExprList)
 
-struct Bc_Module {
+struct Bc_DeclList {
     Bc_Decl *decls;
     size_t length;
 };
+typedef Bc_DeclList Bc_Module;
 
 enum Bc_DeclKind {
     BC_DECL_KIND_STRUCT,
@@ -187,6 +188,8 @@ struct Bc_VarDecl {
 struct Bc_ImplDecl {
     Bc_Ident *target;
     Bc_Token *lcurly;
+    Bc_DeclList *decls;
+    Bc_Token *rcurly;
 };
 
 struct Bc_ReturnStmt {
