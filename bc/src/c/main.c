@@ -77,7 +77,7 @@ int main(int argc, const char **argv) {
 
     Bc_PackratParser parser = {.ts = &ts};
     bc_packrat_cache_init(&parser.cache, ts.lexer.token_list.length);
-    parser.arena = bc_arena_new(1024 * 1024);
+    parser.arena = bc_arena_new(4096);
 
     Bc_Module *module = bc_expect_rule(bc_module_rule, &parser);
     printf("found %zu decls in file %s\n", module->length, input_file.path);
