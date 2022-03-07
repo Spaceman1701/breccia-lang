@@ -11,7 +11,8 @@
 
 #include "cursor.h"
 
-Bc_CursorVisitResult print_structs(Bc_Cursor parent, Bc_Cursor node) {
+Bc_CursorVisitResult print_structs(Bc_Cursor parent, Bc_Cursor node,
+                                   Bc_VisitorData data) {
     char text_buf[256];
     if (parent.kind == Bc_CursorKind_StructDecl) {
         if (node.kind == Bc_CursorKind_Name) {
@@ -33,7 +34,8 @@ Bc_CursorVisitResult print_structs(Bc_Cursor parent, Bc_Cursor node) {
     return Bc_CursorVisitResult_Recurse;
 }
 
-Bc_CursorVisitResult print_stmts(Bc_Cursor parent, Bc_Cursor node) {
+Bc_CursorVisitResult print_stmts(Bc_Cursor parent, Bc_Cursor node,
+                                 Bc_VisitorData data) {
     if (node.kind == Bc_CursorKind_FuncDecl) {
         printf("found function decl\n");
     }
@@ -77,7 +79,7 @@ int main(int argc, const char **argv) {
 
     Bc_PackratParser parser = {.ts = &ts};
     bc_packrat_cache_init(&parser.cache, ts.lexer.token_list.length);
-    parser.arena = bc_arena_new(4096);
+    parser.arena = bc_arena_new(4096); // 4096 is an arbitrary block size
 
     Bc_Module *module = bc_expect_rule(bc_module_rule, &parser);
     printf("found %zu decls in file %s\n", module->length, input_file.path);
@@ -87,9 +89,9 @@ int main(int argc, const char **argv) {
         .kind = Bc_CursorKind_Module,
     };
 
-    bc_cursor_visit_children(module_cursor, print_structs);
+    bc_cursor_visit_children(module_cursor, print_structs, NULL);
     printf("\n\n");
-    bc_cursor_visit_children(module_cursor, print_stmts);
+    bc_cursor_visit_children(module_cursor, print_stmts, NULL);
 
     bc_arena_free(parser.arena);
     bc_list_free_data(&ts.lexer.token_list);

@@ -45,12 +45,14 @@ typedef struct {
     void *data;
 } Bc_Cursor;
 
-typedef void *Bc_CursorData;
+typedef void *Bc_VisitorData;
 
 typedef Bc_CursorVisitResult (*Bc_CursorVisitor)(Bc_Cursor parent,
-                                                 Bc_Cursor cursor);
+                                                 Bc_Cursor cursor,
+                                                 Bc_VisitorData visitor_data);
 
-void bc_cursor_visit_children(Bc_Cursor cursor, Bc_CursorVisitor visitor);
+void bc_cursor_visit_children(Bc_Cursor cursor, Bc_CursorVisitor visitor,
+                              Bc_VisitorData visitor_data);
 
 #define cursor_getter(type, name) Bc_##type *name(Bc_Cursor c);
 #include "cursor_getter_templates.h"
