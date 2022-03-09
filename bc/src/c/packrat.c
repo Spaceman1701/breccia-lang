@@ -12,6 +12,16 @@ void bc_packrat_free_all_owned_memory(Bc_PackratParser *p) {
     free(p->cache.positions);
 }
 
+Bc_PackratParser *bc_packrat_new(TokenScanner *lexer) {
+    Bc_PackratParser *parser = malloc(sizeof(Bc_PackratParser));
+    *parser = (Bc_PackratParser){
+        .arena = bc_arena_new(2048),
+        .ts = lexer,
+    };
+    bc_packrat_cache_init(&parser->cache, lexer->lexer.token_list.length);
+    return parser;
+}
+
 bool bc_rule_succees(Bc_PackratRuleResult result) {
     return result.result == RC_PACKRAT_RESULT_SUCCESS;
 }

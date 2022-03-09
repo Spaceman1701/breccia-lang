@@ -24,6 +24,7 @@ typedef struct {
 size_t bc_packrat_mark(Bc_PackratParser *p);
 void bc_packrat_reset(Bc_PackratParser *p, size_t pos);
 
+Bc_PackratParser *bc_packrat_new(TokenScanner *lexer);
 void bc_packrat_free_all_owned_memory(Bc_PackratParser *p);
 
 typedef Bc_PackratRuleResult (*PackratRuleFunc)(Bc_PackratParser *);

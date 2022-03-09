@@ -10,9 +10,14 @@
 #include "parser_rules.h"
 
 #include "cursor.h"
+#include "translation_unit.h"
+
+typedef struct {
+    uint32_t foo;
+} Test;
 
 Bc_CursorVisitResult print_structs(Bc_Cursor parent, Bc_Cursor node,
-                                   Bc_VisitorData data) {
+                                   Test *data) {
     char text_buf[256];
     if (parent.kind == Bc_CursorKind_StructDecl) {
         if (node.kind == Bc_CursorKind_Name) {
@@ -77,24 +82,12 @@ int main(int argc, const char **argv) {
 
     bc_lexer_print_all_tokens(&ts.lexer);
 
-    Bc_PackratParser parser = {.ts = &ts};
-    bc_packrat_cache_init(&parser.cache, ts.lexer.token_list.length);
-    parser.arena = bc_arena_new(4096); // 4096 is an arbitrary block size
+    Bc_TranslationUnit *tu = bc_tu_new();
+    bc_tu_add_file(tu, &ts);
+    bc_tu_compile(tu);
 
-    Bc_Module *module = bc_expect_rule(bc_module_rule, &parser);
-    printf("found %zu decls in file %s\n", module->length, input_file.path);
-
-    Bc_Cursor module_cursor = {
-        .data = module,
-        .kind = Bc_CursorKind_Module,
-    };
-
-    bc_cursor_visit_children(module_cursor, print_structs, NULL);
-    printf("\n\n");
-    bc_cursor_visit_children(module_cursor, print_stmts, NULL);
-
-    bc_arena_free(parser.arena);
-    bc_list_free_data(&ts.lexer.token_list);
-    bc_packrat_free_all_owned_memory(&parser);
-    bc_files_free_owned_memory(&input_file);
+    Bc_Module *module = bc_list_get(&tu->modules, 0);
+    if (module) {
+        printf("parsed module\n");
+    }
 }

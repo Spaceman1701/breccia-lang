@@ -62,6 +62,13 @@ typedef struct {
     size_t line;
     size_t column;
     size_t position;
+    char *file_path;
+} Bc_TokenPos;
+
+typedef struct {
+    size_t line;
+    size_t column;
+    size_t position;
 
     const char *text_ptr;
     size_t length;
