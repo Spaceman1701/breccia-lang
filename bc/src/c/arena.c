@@ -40,9 +40,10 @@ Bc_Arena bc_arena_new(size_t capacity) {
 }
 
 void *bc_arena_alloc(Bc_Arena arena_in, size_t size) {
+    // log_info("allocating %zu bytes", size);
     Arena *arena = (Arena *)arena_in;
     if ((size + arena->head_index) >= arena->block_capacity) {
-        log_trace("adding new arena block");
+        log_info("adding new arena block");
         bc_arena_new_block(arena);
     }
     void *cur_block = (void *)arena->blocks[arena->block_count - 1];

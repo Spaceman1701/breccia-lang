@@ -2,13 +2,13 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
-size_t hash_code_string(const char *str) {
+size_t hash_code_string(const char *str, size_t bucket_count) {
     size_t hash = 0;
-    const char *cur_char = str;
-    while (cur_char != NULL) {
-        hash += *cur_char;
-        cur_char += 1;
+    size_t len = strlen(str);
+    for (size_t i = 0; i < len; i++) {
+        hash += str[i];
     }
-    return hash;
+    return hash % bucket_count;
 }

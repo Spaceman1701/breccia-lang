@@ -6,6 +6,7 @@
 #include "utils/list.h"
 
 #include "ast.h"
+#include "cursor.h"
 #include "lexer.h"
 #include "packrat.h"
 #include "type.h"
@@ -16,7 +17,6 @@ typedef struct {
 } Bc_TranslationUnit;
 
 typedef struct {
-    FileBuffer *file;
     Bc_PackratParser *parser;
     Bc_Module *parsed_module;
 } Bc_TuModule;
@@ -26,4 +26,8 @@ void bc_tu_free(Bc_TranslationUnit *tu);
 
 void bc_tu_add_file(Bc_TranslationUnit *tu, TokenScanner *scanner);
 
-void bc_tu_compile();
+void bc_tu_compile(Bc_TranslationUnit *tu);
+
+Bc_Cursor bc_tu_get_module_cursor(Bc_TranslationUnit *tu, size_t module_index);
+
+size_t bc_tu_module_count(Bc_TranslationUnit *tu);

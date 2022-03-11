@@ -25,9 +25,18 @@ typedef enum { // these values are intended to be used in bitwise operations
     Bc_TypeReferenceKind_Mutable = 2,
 } Bc_TypeReferenceKind;
 
+typedef enum {
+    Bc_TypeReferenceState_Unresolved = 0, // for use in bool exprs
+    Bc_TypeReferenceState_Resolved = 1,
+} Bc_TypeReferenceState;
+
 typedef struct {
-    char *name;
+    Bc_TypeReferenceState state;
     Bc_TypeReferenceKind kind;
+    union {
+        char *unresolved_name;
+        Bc_Type *resolved_type;
+    };
 } Bc_TypeReference;
 
 bool bc_type_ref_is_ptr(Bc_TypeReference ref);
@@ -35,10 +44,11 @@ bool bc_type_ref_is_mut(Bc_TypeReference ref);
 
 typedef struct {
     char *name;
-    Bc_Type *type;
+    Bc_TypeReference type;
 } Bc_TypeStructField;
 
 struct Bc_TypeStruct {
+    size_t field_count;
     Bc_TypeStructField *fields;
     Bc_StructDecl *decl;
 };
@@ -58,6 +68,17 @@ struct Bc_Type {
 
 typedef void *Bc_TypeIndex;
 
+Bc_TypeIndex bc_type_index_new();
+void bc_type_index_free(Bc_TypeIndex index);
+
 Bc_Type *bc_type_index_find_type(Bc_TypeIndex index,
                                  Bc_TypeReference reference);
 Bc_Type *bc_type_index_create_type(Bc_TypeIndex index, char *name);
+
+char *bc_type_index_alloc_token_text(Bc_TypeIndex index, Bc_Token *tk);
+
+void *bc_type_index_alloc(Bc_TypeIndex index, size_t size);
+
+void bc_type_index_resolve_reference(Bc_TypeIndex index, Bc_TypeReference ref);
+
+void bc_type_index_resolve(Bc_TypeIndex index);

@@ -5,4 +5,4 @@
 
 // utility functions for generating hash codes
 
-size_t hash_code_string(const char *str);
+size_t hash_code_string(const char *str, size_t bucket_count);

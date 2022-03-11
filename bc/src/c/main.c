@@ -57,10 +57,7 @@ Bc_CursorVisitResult print_stmts(Bc_Cursor parent, Bc_Cursor node,
 
 int main(int argc, const char **argv) {
 
-#ifdef LOG_LEVEL
-    log_set_level(LOG_LEVEL);
-#endif
-    log_set_level(LOG_ERROR);
+    log_set_level(LOG_INFO);
     if (argc < 2) {
         fprintf(stderr, "error: no input files\n");
         return -1;
@@ -79,8 +76,6 @@ int main(int argc, const char **argv) {
     TokenScanner ts;
     ts.lexer = s;
     ts.cursor = 0;
-
-    bc_lexer_print_all_tokens(&ts.lexer);
 
     Bc_TranslationUnit *tu = bc_tu_new();
     bc_tu_add_file(tu, &ts);
