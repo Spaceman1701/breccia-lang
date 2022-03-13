@@ -68,6 +68,14 @@ struct Bc_Type {
 
 typedef void *Bc_TypeIndex;
 
+typedef struct {
+    size_t bucket;
+    size_t index;
+} Bc_TypeIterator;
+
+void bc_init_type_iterator(Bc_TypeIterator *iterator);
+Bc_Type *bc_type_iter_next(Bc_TypeIterator *iter, Bc_TypeIndex index);
+
 Bc_TypeIndex bc_type_index_new();
 void bc_type_index_free(Bc_TypeIndex index);
 

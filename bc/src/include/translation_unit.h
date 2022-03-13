@@ -11,6 +11,8 @@
 #include "packrat.h"
 #include "type.h"
 
+#include "backend/tcu.h"
+
 typedef struct {
     Bc_List modules;
     Bc_TypeIndex *type_index;

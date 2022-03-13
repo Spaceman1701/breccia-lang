@@ -12,48 +12,9 @@
 #include "cursor.h"
 #include "translation_unit.h"
 
-typedef struct {
-    uint32_t foo;
-} Test;
+#include "backend/tcu.h"
 
-Bc_CursorVisitResult print_structs(Bc_Cursor parent, Bc_Cursor node,
-                                   Test *data) {
-    char text_buf[256];
-    if (parent.kind == Bc_CursorKind_StructDecl) {
-        if (node.kind == Bc_CursorKind_Name) {
-            Bc_Token *name = bc_cursor_Name(node);
-            bc_token_copy_text(name, text_buf);
-            printf("struct %s\n", text_buf);
-            return Bc_CursorVisitResult_Continue;
-        }
-        if (node.kind == Bc_CursorKind_StructField) {
-            Bc_StructField *field = bc_cursor_StructField(node);
-            printf("  field ");
-            bc_token_copy_text(field->name, text_buf);
-            printf("%s ", text_buf);
-            bc_token_copy_text(field->type->name, text_buf);
-            printf("%s\n", text_buf);
-            return Bc_CursorVisitResult_Continue;
-        }
-    }
-    return Bc_CursorVisitResult_Recurse;
-}
-
-Bc_CursorVisitResult print_stmts(Bc_Cursor parent, Bc_Cursor node,
-                                 Bc_VisitorData data) {
-    if (node.kind == Bc_CursorKind_FuncDecl) {
-        printf("found function decl\n");
-    }
-    if (node.kind == Bc_CursorKind_Block) {
-        printf("found block\n");
-    }
-    if (node.kind == Bc_CursorKind_Stmt) {
-        const Bc_Stmt *stmt = node.data;
-        printf("stmt kind: %d\n", stmt->kind);
-        return Bc_CursorVisitResult_Continue;
-    }
-    return Bc_CursorVisitResult_Recurse;
-}
+#include "pases.h"
 
 int main(int argc, const char **argv) {
 
@@ -85,4 +46,8 @@ int main(int argc, const char **argv) {
     if (module) {
         printf("parsed module\n");
     }
+
+    Bc_CTranslationUnit *ctu = build_c_tu(tu);
+
+    bc_write_c_tu(stdout, stdout, ctu);
 }

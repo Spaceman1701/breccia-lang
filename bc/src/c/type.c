@@ -148,3 +148,28 @@ void bc_type_index_resolve(Bc_TypeIndex index) {
         }
     }
 }
+
+void bc_init_type_iterator(Bc_TypeIterator *iterator) {
+    *iterator = (Bc_TypeIterator){
+        .bucket = 0,
+        .index = 0,
+    };
+}
+
+Bc_Type *bc_type_iter_next(Bc_TypeIterator *iter, Bc_TypeIndex index) {
+    _TypeIndex *ti = (_TypeIndex *)index;
+    size_t next_index = iter->index;
+    size_t bucket = iter->bucket;
+    if (bucket < bucket_count) {
+        if (next_index < ti->buckets[bucket].length) {
+            iter->index = next_index + 1;
+            return bc_list_get(&ti->buckets[bucket], next_index);
+        } else {
+            iter->bucket += 1;
+            iter->index = 0;
+            return bc_type_iter_next(iter, index);
+        }
+    }
+
+    return NULL;
+}
